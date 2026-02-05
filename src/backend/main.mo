@@ -60,10 +60,42 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can seed products");
     };
-    ignore addProductToStore("Reusable Water Bottle", "Eco-friendly water bottle, BPA-free.", 19.99, "USD", "Home", "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=facearea&w=480&h=480&q=80", true);
-    ignore addProductToStore("LED Desk Lamp", "Energy-efficient LED lamp with touch control.", 29.95, "USD", "Office", "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=480&h=480&q=80", true);
-    ignore addProductToStore("Bluetooth Speaker", "Portable wireless speaker, water-resistant.", 49.99, "USD", "Electronics", "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=facearea&w=480&h=480&q=80", true);
-    ignore addProductToStore("Yoga Mat", "Non-slip, eco-friendly yoga mat.", 25.00, "USD", "Fitness", "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=480&h=480&q=80", true);
+    ignore addProductToStore(
+      "Reusable Water Bottle",
+      "Eco-friendly water bottle, BPA-free.",
+      19.99,
+      "USD",
+      "Home",
+      "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=facearea&w=480&h=480&q=80",
+      true,
+    );
+    ignore addProductToStore(
+      "LED Desk Lamp",
+      "Energy-efficient LED lamp with touch control.",
+      29.95,
+      "USD",
+      "Office",
+      "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=480&h=480&q=80",
+      true,
+    );
+    ignore addProductToStore(
+      "Bluetooth Speaker",
+      "Portable wireless speaker, water-resistant.",
+      49.99,
+      "USD",
+      "Electronics",
+      "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=facearea&w=480&h=480&q=80",
+      true,
+    );
+    ignore addProductToStore(
+      "Yoga Mat",
+      "Non-slip, eco-friendly yoga mat.",
+      25.00,
+      "USD",
+      "Fitness",
+      "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=480&h=480&q=80",
+      true,
+    );
   };
 
   func addProductToStore(name : Text, description : Text, price : Float, currency : Text, category : Text, imageUrl : Text, inStock : Bool) : ?Nat {

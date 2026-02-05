@@ -1,6 +1,7 @@
 import { Actor, HttpAgent, type ActorSubclass } from '@icp-sdk/core/agent';
 import { type backendInterface } from '../backend';
 import { APP_SLUG } from './appConfig';
+import { ConfigurationError } from '../lib/errors';
 
 // Environment configuration
 interface EnvConfig {
@@ -10,6 +11,24 @@ interface EnvConfig {
 }
 
 let cachedConfig: EnvConfig | null = null;
+
+/**
+ * Validate canister ID format and ensure it's not a placeholder
+ */
+function isValidCanisterId(canisterId: string | undefined): boolean {
+  if (!canisterId || canisterId.trim() === '') {
+    return false;
+  }
+  
+  // Check for placeholder values
+  const placeholders = ['PLACEHOLDER', 'YOUR_CANISTER_ID', 'undefined', 'null'];
+  if (placeholders.some(p => canisterId.toUpperCase().includes(p))) {
+    return false;
+  }
+  
+  // Basic format check: should contain alphanumeric and hyphens
+  return /^[a-z0-9-]+$/i.test(canisterId);
+}
 
 /**
  * Load configuration from environment
@@ -25,24 +44,59 @@ export async function loadConfig(): Promise<EnvConfig> {
     const response = await fetch('/env.json');
     if (response.ok) {
       const envData = await response.json();
+      const canisterId = envData.BACKEND_CANISTER_ID || envData.canisterId;
+      
+      if (!isValidCanisterId(canisterId)) {
+        throw new ConfigurationError(
+          'Backend canister ID is missing or invalid in env.json. ' +
+          'Please ensure env.json contains a valid BACKEND_CANISTER_ID.'
+        );
+      }
+      
       cachedConfig = {
-        canisterId: envData.BACKEND_CANISTER_ID || envData.canisterId,
+        canisterId,
         host: envData.DFX_NETWORK === 'ic' ? 'https://icp-api.io' : 'http://localhost:4943',
         ii_derivation_origin: envData.II_DERIVATION_ORIGIN,
       };
+      
+      console.log('[Config] Loaded from env.json:', {
+        canisterId: cachedConfig.canisterId,
+        network: envData.DFX_NETWORK,
+        host: cachedConfig.host
+      });
+      
       return cachedConfig;
     }
   } catch (error) {
-    console.warn('Failed to load env.json, using fallback configuration');
+    if (error instanceof ConfigurationError) {
+      throw error;
+    }
+    console.warn('[Config] Failed to load env.json:', error);
   }
 
   // Fallback to environment variables (development)
   const isDevelopment = import.meta.env.DEV;
+  const fallbackCanisterId = import.meta.env.VITE_BACKEND_CANISTER_ID || 'rrkah-fqaaa-aaaaa-aaaaq-cai';
+  
+  if (!isDevelopment && !isValidCanisterId(fallbackCanisterId)) {
+    throw new ConfigurationError(
+      'Backend configuration is not available. ' +
+      'The application requires a valid backend canister ID to function. ' +
+      'Please ensure the deployment includes a properly configured env.json file.'
+    );
+  }
+  
   cachedConfig = {
-    canisterId: import.meta.env.VITE_BACKEND_CANISTER_ID || 'rrkah-fqaaa-aaaaa-aaaaq-cai',
+    canisterId: fallbackCanisterId,
     host: isDevelopment ? 'http://localhost:4943' : 'https://icp-api.io',
     ii_derivation_origin: import.meta.env.VITE_II_DERIVATION_ORIGIN,
   };
+
+  console.log('[Config] Using fallback configuration:', {
+    canisterId: cachedConfig.canisterId,
+    isDevelopment,
+    host: cachedConfig.host
+  });
 
   return cachedConfig;
 }
@@ -131,7 +185,7 @@ export async function createActorWithConfig(
     try {
       await agent.fetchRootKey();
     } catch (error) {
-      console.warn('Failed to fetch root key:', error);
+      console.warn('[Config] Failed to fetch root key:', error);
     }
   }
 
@@ -157,3 +211,8 @@ export async function getCanisterId(): Promise<string> {
  * Export app configuration
  */
 export { APP_SLUG, APP_CONFIG } from './appConfig';
+
+/**
+ * Re-export ConfigurationError for convenience
+ */
+export { ConfigurationError } from '../lib/errors';

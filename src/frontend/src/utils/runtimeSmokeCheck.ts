@@ -1,4 +1,5 @@
 import { createActorWithConfig } from '../config';
+import { ConfigurationError } from '../lib/errors';
 
 /**
  * Non-blocking runtime smoke check to verify backend connectivity
@@ -15,7 +16,12 @@ export async function runRuntimeSmokeCheck(): Promise<void> {
     
     console.log(`[Smoke Check] ✓ Backend reachable. Found ${products.length} products.`);
   } catch (error) {
-    console.warn('[Smoke Check] ✗ Backend connectivity issue:', error);
+    if (error instanceof ConfigurationError) {
+      console.error('[Smoke Check] ✗ Configuration error:', error.message);
+      console.error('[Smoke Check] The application cannot start without valid backend configuration.');
+    } else {
+      console.warn('[Smoke Check] ✗ Backend connectivity issue:', error);
+    }
     // Don't throw - this is informational only
   }
 }

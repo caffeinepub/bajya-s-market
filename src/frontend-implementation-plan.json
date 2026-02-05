@@ -1,123 +1,100 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Make the existing React web app installable as a reliable PWA",
+  "title": "Resolve live IC deployment config by providing env.json, validating canister ID, and showing actionable UI errors",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Validate and update the web manifest + HTML metadata so browsers detect the PWA and it is installable on mobile/desktop.",
+      "summary": "Ensure the live/public frontend loads and is wired to the correct backend canister configuration at runtime.",
       "acceptanceCriteria": [
-        "The manifest is accessible at `/manifest.webmanifest` and is valid JSON that includes `name`, `short_name`, `start_url`, `scope`, `display`, `theme_color`, `background_color`, and a 192x192 + 512x512 icon set (including a maskable icon).",
-        "`frontend/index.html` contains a `<link rel=\"manifest\" ...>` tag and appropriate PWA-related meta tags (at minimum: `theme-color`, and Apple install meta + touch icon).",
-        "Installing the app from a supported browser results in a standalone app window (display-mode: standalone)."
+        "Opening the live/public app URL loads the React app (not the IC gateway “Canister ID Not Resolved” page).",
+        "The frontend can successfully call the backend (e.g., products list loads without backend connectivity errors) when accessed from the live URL."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/manifest.webmanifest",
+          "path": "frontend/src/config/index.ts",
           "operation": "modify",
-          "description": "Ensure the manifest fields required for installability are present and correct (name/short_name, start_url/scope, display=standalone, theme/background colors) and that icons reference the generated assets including 192x192, 512x512, and a 512x512 maskable icon."
+          "description": "Harden runtime configuration loading (from /env.json) and canister ID validation so the actor is never created with a placeholder/invalid canister ID; continue to use the existing core-infrastructure config/actor creation pattern. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/index.html",
+          "path": "frontend/public/sw.js",
           "operation": "modify",
-          "description": "Confirm the manifest link and required PWA metadata are present and detected by browsers; add/adjust any missing install-related meta tags (keep `theme-color`, Apple install meta tags, and Apple touch icon; consider also adding `mobile-web-app-capable` for broader support)."
+          "description": "Adjust service worker caching rules to avoid caching /env.json (and avoid precaching it) so live deployments always pick up the latest runtime config after redeploy."
         },
         {
-          "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
-          "operation": "create",
-          "description": "Add the generated 192x192 PWA icon asset and ensure it is served as a static public asset for both the manifest and HTML icon link tags."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated 512x512 PWA icon asset and ensure it is served as a static public asset for both the manifest and HTML icon link tags."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated 512x512 maskable PWA icon asset and ensure it is served as a static public asset referenced by the manifest icons list."
+          "path": "frontend/src/utils/runtimeSmokeCheck.ts",
+          "operation": "modify",
+          "description": "Update the smoke check to report configuration/actor initialization failures distinctly from general connectivity issues, supporting faster verification from the live URL."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Harden service worker behavior: reliable registration, offline fallback for navigations, and safe fetch interception rules.",
+      "summary": "Provide a production /env.json and ensure the frontend consumes it to initialize the backend actor with a non-placeholder canister ID.",
       "acceptanceCriteria": [
-        "A service worker is registered at `/sw.js` and activates successfully on first load in a modern browser.",
-        "When the network is disconnected and the user refreshes or navigates to a route, a user-friendly offline fallback page is served for navigation requests.",
-        "Non-GET requests are not intercepted by the service worker."
+        "In the live deployment, `GET /env.json` returns HTTP 200 and includes a non-placeholder backend canister ID.",
+        "In the live deployment, the app initializes the actor using the canister ID from `/env.json` (verified by successful calls like `getAllProducts`)."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/sw.js",
-          "operation": "modify",
-          "description": "Refine the fetch handler to keep the offline navigation fallback reliable while avoiding unsafe interception: continue skipping non-GET requests and non-http(s) requests; additionally constrain caching/interception to safe request types (e.g., same-origin GET and/or navigation/static assets) so background/API-like requests are less likely to be cached incorrectly."
+          "path": "frontend/public/env.json",
+          "operation": "create",
+          "description": "Add a runtime configuration file served at /env.json with the required keys (BACKEND_CANISTER_ID or canisterId, and DFX_NETWORK). Include clear placeholders/comments-free JSON and document that values must be replaced during live deployment."
         },
         {
-          "path": "frontend/public/sw.js",
+          "path": "frontend/src/config/index.ts",
           "operation": "modify",
-          "description": "Add a message handler to support a safe update flow (e.g., handle a 'SKIP_WAITING' message) without changing behavior for non-GET requests."
-        },
-        {
-          "path": "frontend/public/offline.html",
-          "operation": "modify",
-          "description": "Ensure the offline fallback page content remains user-friendly and fully self-contained so it can be served for navigation requests when the network is unavailable."
-        },
-        {
-          "path": "frontend/src/pwa/registerServiceWorker.ts",
-          "operation": "modify",
-          "description": "Keep service worker registration at `/sw.js`, and enhance registration lifecycle handling to better support offline readiness and later UI-driven updates (without relying on console logs only)."
+          "description": "Ensure /env.json parsing supports BACKEND_CANISTER_ID/canisterId and DFX_NETWORK, and fails fast with a typed/configurable error when values are missing/empty/placeholder; continue to use core-infrastructure for actor creation. Verify the component's usage instructions before implementing."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add a user-facing in-app update prompt that appears when a new service worker version is available and allows refreshing to activate it.",
+      "summary": "Show a user-facing English error state when backend configuration is missing/invalid instead of silently failing.",
       "acceptanceCriteria": [
-        "When a new service worker is installed while the app is open, the UI displays a clear English message indicating an update is available.",
-        "Clicking the refresh action reloads the app and the new service worker takes control (confirmed by absence of the update prompt after reload)."
+        "If `/env.json` is missing/invalid in a production build, the UI shows a clear error message indicating backend configuration is not set (instead of only console warnings).",
+        "The error message does not expose secrets and includes actionable next steps (e.g., redeploy with correct canister ID in env.json)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/pwa/registerServiceWorker.ts",
-          "operation": "modify",
-          "description": "Emit an app-consumable signal when an update is ready (e.g., dispatch a window CustomEvent when a new worker reaches 'installed' while a controller exists), and track controller changes so the UI can hide the prompt after reload/control change."
+          "path": "frontend/src/hooks/useEnvConfig.ts",
+          "operation": "create",
+          "description": "Create a small hook to load and validate runtime env configuration (via frontend/src/config/index.ts) and expose a stable UI state (loading/ok/error) for app-wide rendering decisions."
         },
         {
-          "path": "frontend/src/components/PwaUpdateBanner.tsx",
+          "path": "frontend/src/components/ConfigErrorState.tsx",
           "operation": "create",
-          "description": "Create a small global banner component that listens for the service-worker update-ready signal, shows a clear English update-available message, and offers a 'Refresh' action that triggers the update flow (request skip-waiting when applicable, then reload the page)."
+          "description": "Add a user-facing configuration error component that explains the missing/invalid /env.json problem and provides actionable next steps; use shadcn-ui (e.g., Alert/Card/Button) for consistent styling. Verify the component's usage instructions before implementing."
         },
         {
           "path": "frontend/src/components/StoreLayout.tsx",
           "operation": "modify",
-          "description": "Wire the new PwaUpdateBanner into the app layout so it is visible across routes (global placement above the routed content and/or header) and is not an orphan component."
+          "description": "Wire the ConfigErrorState into the main layout so that when runtime config is invalid/missing, the app shows the error state instead of rendering normal routes; use the new useEnvConfig hook."
         },
         {
-          "path": "frontend/public/sw.js",
+          "path": "frontend/src/utils/toUserMessage.ts",
           "operation": "modify",
-          "description": "Support the UI update flow by responding to a 'SKIP_WAITING' message (or equivalent) so a newly installed worker can activate promptly when the user chooses Refresh."
+          "description": "Extend error-to-message mapping to recognize and format configuration/actor initialization errors into clear English UI messages without exposing secrets."
         }
       ]
     },
     {
       "id": "REQ-4",
-      "summary": "Ensure an in-app installation entry point exists using beforeinstallprompt when available, with clear fallback instructions when not.",
+      "summary": "Prepare the project for a clean redeploy and provide a repeatable smoke-check checklist for confirming the live URL works.",
       "acceptanceCriteria": [
-        "If the `beforeinstallprompt` event is available, clicking “Install App” triggers the native install prompt.",
-        "If the app is already installed (standalone display-mode), the install UI is not shown.",
-        "If the prompt is not available, the UI shows clear English installation instructions for at least Android Chrome."
+        "A fresh live deployment is produced after the fix, and the live app URL loads successfully.",
+        "A post-deploy smoke check confirms the frontend can reach the backend canister in production."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/components/PwaInstallPrompt.tsx",
-          "operation": "modify",
-          "description": "Harden install-UI logic: keep the 'Install App' control as an in-app entry point, ensure it is hidden when installed (include robust installed detection such as display-mode: standalone and iOS navigator.standalone), and keep/clarify the English fallback instructions for Android Chrome when beforeinstallprompt is not available."
+          "path": "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+          "operation": "create",
+          "description": "Document the redeploy checklist focused on frontend runtime config: verify /env.json returns 200, contains non-placeholder BACKEND_CANISTER_ID/canisterId and DFX_NETWORK=ic, confirm the app loads at the canister URL, and confirm product list loads (getAllProducts) from the live URL."
         },
         {
-          "path": "frontend/src/components/StoreHeader.tsx",
+          "path": "frontend/public/sw.js",
           "operation": "modify",
-          "description": "Verify the 'Install App' control remains consistently discoverable in both desktop and mobile header navigation (and remains hidden when installed), keeping user-facing text in English."
+          "description": "Add a note in code comments (and ensure behavior) that /env.json should not be cached so redeploys immediately take effect, supporting reliable post-deploy validation."
         }
       ]
     }

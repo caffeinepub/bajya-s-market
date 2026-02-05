@@ -1,7 +1,7 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:58:01.072Z",
+  "generatedAt": "2026-02-05T23:21:45.092Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
@@ -12,77 +12,80 @@
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
+        "summary": "Fix the production/live deployment so the public URL resolves correctly and does not show the Internet Computer gateway error “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/manifest.webmanifest",
-          "frontend/index.html",
-          "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
-          "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
-          "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png"
+          "frontend/src/config/index.ts",
+          "frontend/public/sw.js",
+          "frontend/src/utils/runtimeSmokeCheck.ts"
         ],
         "matchedFiles": [
-          "frontend/index.html"
+          "frontend/src/config/index.ts",
+          "frontend/public/sw.js",
+          "frontend/src/utils/runtimeSmokeCheck.ts"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
+        "summary": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with the correct `BACKEND_CANISTER_ID` (or `canisterId`) and `DFX_NETWORK` values so `frontend/src/config/index.ts` does not fall back to the placeholder canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/public/sw.js",
-          "frontend/public/sw.js",
-          "frontend/public/offline.html",
-          "frontend/src/pwa/registerServiceWorker.ts"
+          "frontend/public/env.json",
+          "frontend/src/config/index.ts"
         ],
         "matchedFiles": [
-          "frontend/public/sw.js",
-          "frontend/public/sw.js",
-          "frontend/src/pwa/registerServiceWorker.ts"
+          "frontend/public/env.json",
+          "frontend/src/config/index.ts"
         ]
       },
       {
         "id": "REQ-3",
-        "summary": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
+        "summary": "Add a user-facing, English error state when backend configuration is missing/invalid (e.g., `/env.json` missing or canisterId empty) that clearly explains the problem and how to fix it, instead of failing silently or only logging to the console.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/pwa/registerServiceWorker.ts",
-          "frontend/src/components/PwaUpdateBanner.tsx",
+          "frontend/src/hooks/useEnvConfig.ts",
+          "frontend/src/components/ConfigErrorState.tsx",
           "frontend/src/components/StoreLayout.tsx",
-          "frontend/public/sw.js"
+          "frontend/src/utils/toUserMessage.ts"
         ],
         "matchedFiles": [
-          "frontend/src/pwa/registerServiceWorker.ts",
-          "frontend/src/components/PwaUpdateBanner.tsx",
+          "frontend/src/hooks/useEnvConfig.ts",
+          "frontend/src/components/ConfigErrorState.tsx",
           "frontend/src/components/StoreLayout.tsx",
-          "frontend/public/sw.js"
+          "frontend/src/utils/toUserMessage.ts"
         ]
       },
       {
         "id": "REQ-4",
-        "summary": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+        "summary": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/components/PwaInstallPrompt.tsx",
-          "frontend/src/components/StoreHeader.tsx"
+          "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+          "frontend/public/sw.js"
         ],
         "matchedFiles": [
-          "frontend/src/components/PwaInstallPrompt.tsx"
+          "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+          "frontend/public/sw.js"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/index.html",
+    "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+    "frontend/public/env.json",
     "frontend/public/sw.js",
-    "frontend/src/components/PwaInstallPrompt.tsx",
-    "frontend/src/components/PwaUpdateBanner.tsx",
+    "frontend/src/components/ConfigErrorState.tsx",
     "frontend/src/components/StoreLayout.tsx",
-    "frontend/src/pwa/registerServiceWorker.ts",
+    "frontend/src/config/index.ts",
+    "frontend/src/hooks/useEnvConfig.ts",
+    "frontend/src/lib/errors.ts",
+    "frontend/src/utils/runtimeSmokeCheck.ts",
+    "frontend/src/utils/toUserMessage.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

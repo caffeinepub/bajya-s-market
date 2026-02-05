@@ -1,52 +1,61 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:58:01.069Z",
-  "summary": "Most PWA plumbing appears implemented (service worker at /sw.js with offline navigation fallback logic, registration code, update banner UI, and install prompt UI with beforeinstallprompt handling). However, the diff summary does not show an actual manifest file at /manifest.webmanifest or an offline fallback HTML page at /offline.html, both of which are explicitly required/used.",
+  "generatedAt": "2026-02-05T23:21:45.089Z",
+  "summary": "The diff adds a runtime env config loader with validation, a user-facing configuration error UI, and service worker logic to avoid caching `/env.json`. However, the diff does not clearly show that an actual `frontend/public/env.json` file (served at `/env.json`) is included, nor does it provide evidence of a completed mainnet redeploy or confirmation that the live URL now resolves (those are operational outcomes not demonstrated in code diff). There are also backend changes (sample product seeding) not requested by the deployment/config fix scope.",
   "missing_requirements": [
     {
       "id": "REQ-1",
-      "requirement": "Provide a valid web app manifest accessible at `/manifest.webmanifest` containing required fields (name, short_name, start_url, scope, display, theme_color, background_color) and required icon set (192x192, 512x512, including a maskable icon).",
-      "reason": "The diff shows `frontend/index.html` linking to `/manifest.webmanifest` and `sw.js` precaching it, but no `frontend/public/manifest.webmanifest` (or equivalent) content is included in the diff summary, so manifest validity/fields/icons cannot be verified as implemented.",
+      "requirement": "Fix the production/live deployment so the public URL resolves correctly and does not show “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
+      "reason": "The diff includes frontend runtime config handling and UI changes, but does not include any deployment configuration changes (e.g., canister deployment settings, asset canister/domain config) or evidence that the public URL is now resolving correctly. This requirement’s acceptance criteria require live behavior confirmation not shown in the diff.",
       "evidence": [
-        "frontend/index.html",
-        "frontend/public/sw.js"
+        "frontend/src/config/index.ts",
+        "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md"
       ]
     },
     {
       "id": "REQ-2",
-      "requirement": "Serve a user-friendly offline fallback page for navigation requests when the network is unavailable.",
-      "reason": "The service worker references `OFFLINE_URL = '/offline.html'` and precaches `/offline.html`, but the diff summary does not show any `offline.html` file being added/modified, so the offline fallback page itself is not evidenced.",
+      "requirement": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with correct `BACKEND_CANISTER_ID`/`canisterId` and `DFX_NETWORK` so the app does not fall back to the placeholder canister ID.",
+      "reason": "Code now attempts to fetch `/env.json` and validates its contents, and documentation mentions `frontend/public/env.json`, but the diff does not show that `frontend/public/env.json` is actually added/updated in the repository. Without that file (or other asset-serving config) being present, the requirement to serve a valid `/env.json` at runtime is not fully implemented in the diff.",
       "evidence": [
+        "frontend/src/config/index.ts",
+        "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
         "frontend/public/sw.js"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment (including a post-deploy smoke check).",
+      "reason": "The diff adds a smoke check document and a runtime smoke check utility, but does not provide evidence of an actual redeploy/publish to IC mainnet or confirmation that the live URL loads and can reach the backend canister. Deployment and verification are not represented in the provided code changes.",
+      "evidence": [
+        "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+        "frontend/src/utils/runtimeSmokeCheck.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Project tracking/state metadata updates (project_state.json) unrelated to the PWA runtime requirements.",
-      "reason": "The BuildRequest requirements focus on manifest/HTML metadata, service worker behavior, update flow UI, and install entry point. Updating a project_state.json file is not requested as part of the PWA feature set.",
+      "description": "Admin-only backend method to seed sample products (and associated sample product data).",
+      "reason": "This is a new/changed backend capability unrelated to fixing live deployment, runtime env.json configuration, or adding a configuration error UI; it appears to be a product feature/change outside the stated non-goals.",
       "evidence": [
-        "project_state.json"
-      ]
-    },
-    {
-      "description": "Added/updated `frontend-file-summaries.txt` documentation artifact.",
-      "reason": "Generating or modifying summary documentation is not requested by the BuildRequest requirements.",
-      "evidence": [
-        "frontend-file-summaries.txt"
+        "backend/main.mo"
       ]
     }
   ],
-  "confidence": 0.74,
+  "confidence": 0.68,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/index.html",
+    "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+    "frontend/public/env.json",
     "frontend/public/sw.js",
-    "frontend/src/components/PwaInstallPrompt.tsx",
-    "frontend/src/components/PwaUpdateBanner.tsx",
+    "frontend/src/components/ConfigErrorState.tsx",
     "frontend/src/components/StoreLayout.tsx",
-    "frontend/src/pwa/registerServiceWorker.ts",
+    "frontend/src/config/index.ts",
+    "frontend/src/hooks/useEnvConfig.ts",
+    "frontend/src/lib/errors.ts",
+    "frontend/src/utils/runtimeSmokeCheck.ts",
+    "frontend/src/utils/toUserMessage.ts",
     "project_state.json"
   ]
 }

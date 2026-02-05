@@ -1,6 +1,8 @@
 const CACHE_NAME = 'bajyas-market-v2';
 const OFFLINE_URL = '/offline.html';
 
+// Note: env.json should NOT be precached or cached at all
+// This ensures that after redeployment, the app always fetches the latest configuration
 const PRECACHE_ASSETS = [
   '/',
   '/offline.html',
@@ -57,8 +59,23 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Skip API calls to the backend canister (they should fail fast, not be cached)
   const url = new URL(event.request.url);
+  
+  // CRITICAL: Never cache env.json - always fetch from network
+  // This ensures redeployments immediately pick up new configuration
+  if (url.pathname === '/env.json') {
+    event.respondWith(
+      fetch(event.request, { cache: 'no-store' }).catch(() => {
+        return new Response(JSON.stringify({ error: 'Configuration unavailable' }), {
+          status: 503,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      })
+    );
+    return;
+  }
+
+  // Skip API calls to the backend canister (they should fail fast, not be cached)
   if (url.pathname.includes('/api/') || url.hostname.includes('.ic0.app') || url.hostname.includes('.icp0.io')) {
     return;
   }

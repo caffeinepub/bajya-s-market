@@ -2,10 +2,12 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-ensure-the-app-meets-installable-pwa-requirements-by-validating-and-if-needed-updating-the-pwa-manifest-and-html-metadata-name-short-name-start-url-scope-display-mode-theme-background-colors-icons-and-apple-install-meta-tags-so-that-the-manifest-is-correctly-detected-by-browsers-and-the-app-can-be-installed-on-mobile-and-desktop",
-      "featureTitle": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
+      "featureId": "feature-fix-the-production-live-deployment-so-the-public-url-resolves-correctly-and-does-not-show-the-internet-computer-gateway-error-canister-id-not-resolved-error-400-ensure-the-deployed-frontend-is-accessible-via-a-valid-canister-url-domain-and-points-to-the-correct-backend-canister",
+      "featureTitle": "Fix the production/live deployment so the public URL resolves correctly and does not show the Internet Computer gateway error “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
       "files": [
-        "frontend/index.html"
+        "frontend/public/sw.js",
+        "frontend/src/config/index.ts",
+        "frontend/src/utils/runtimeSmokeCheck.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -21,11 +23,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-harden-service-worker-behavior-for-a-reliable-pwa-experience-ensure-the-service-worker-is-registered-in-supported-browsers-provides-an-offline-fallback-for-navigation-when-the-network-is-unavailable-and-uses-a-cache-strategy-that-avoids-breaking-non-get-requests-and-non-http-s-requests",
-      "featureTitle": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
+      "featureId": "feature-ensure-production-configuration-is-correctly-provided-at-runtime-by-serving-a-valid-env-json-in-the-deployed-frontend-with-the-correct-backend-canister-id-or-canisterid-and-dfx-network-values-so-frontend-src-config-index-ts-does-not-fall-back-to-the-placeholder-canister-id-rrkah-fqaaa-aaaaa-aaaaq-cai",
+      "featureTitle": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with the correct `BACKEND_CANISTER_ID` (or `canisterId`) and `DFX_NETWORK` values so `frontend/src/config/index.ts` does not fall back to the placeholder canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`).",
       "files": [
-        "frontend/public/sw.js",
-        "frontend/src/pwa/registerServiceWorker.ts"
+        "frontend/public/env.json",
+        "frontend/src/config/index.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -41,13 +43,13 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-add-a-user-facing-update-flow-for-the-pwa-so-users-are-informed-when-a-new-version-is-available-and-can-refresh-to-activate-the-updated-service-worker-e-g-show-a-small-banner-toast-with-a-refresh-action-when-an-update-is-installed-and-the-page-is-controlled-by-an-older-worker",
-      "featureTitle": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
+      "featureId": "feature-add-a-user-facing-english-error-state-when-backend-configuration-is-missing-invalid-e-g-env-json-missing-or-canisterid-empty-that-clearly-explains-the-problem-and-how-to-fix-it-instead-of-failing-silently-or-only-logging-to-the-console",
+      "featureTitle": "Add a user-facing, English error state when backend configuration is missing/invalid (e.g., `/env.json` missing or canisterId empty) that clearly explains the problem and how to fix it, instead of failing silently or only logging to the console.",
       "files": [
-        "frontend/public/sw.js",
-        "frontend/src/components/PwaUpdateBanner.tsx",
+        "frontend/src/components/ConfigErrorState.tsx",
         "frontend/src/components/StoreLayout.tsx",
-        "frontend/src/pwa/registerServiceWorker.ts"
+        "frontend/src/hooks/useEnvConfig.ts",
+        "frontend/src/utils/toUserMessage.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -63,10 +65,11 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-ensure-there-is-an-in-app-installation-entry-point-provide-an-install-app-control-that-uses-the-beforeinstallprompt-flow-when-available-and-provides-clear-fallback-instructions-when-the-install-prompt-is-not-available-or-the-app-is-already-installed",
-      "featureTitle": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+      "featureId": "feature-redeploy-publish-the-fixed-build-to-the-live-internet-computer-environment-and-confirm-the-live-url-works-after-deployment",
+      "featureTitle": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment.",
       "files": [
-        "frontend/src/components/PwaInstallPrompt.tsx"
+        "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
+        "frontend/public/sw.js"
       ],
       "components": [
         "core-infrastructure@1.0.2",
