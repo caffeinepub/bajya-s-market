@@ -1,0 +1,124 @@
+import Map "mo:core/Map";
+import Text "mo:core/Text";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
+import Runtime "mo:core/Runtime";
+import Order "mo:core/Order";
+
+actor {
+  type Product = {
+    id : Nat;
+    name : Text;
+    description : Text;
+    price : Float;
+    currency : Text;
+    category : Text;
+    imageUrl : Text;
+    inStock : Bool;
+  };
+
+  module Product {
+    public func compareByPrice(p1 : Product, p2 : Product) : Order.Order {
+      if (p1.price < p2.price) {
+        #less;
+      } else if (p1.price > p2.price) {
+        #greater;
+      } else {
+        #equal;
+      };
+    };
+  };
+
+  let products = Map.empty<Nat, Product>();
+  var nextId = 1;
+
+  public shared ({ caller }) func seedSampleProducts() : async () {
+    addProductToStore("Reusable Water Bottle", "Eco-friendly water bottle, BPA-free.", 19.99, "USD", "Home", "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=facearea&w=480&h=480&q=80", true);
+    addProductToStore("LED Desk Lamp", "Energy-efficient LED lamp with touch control.", 29.95, "USD", "Office", "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=480&h=480&q=80", true);
+    addProductToStore("Bluetooth Speaker", "Portable wireless speaker, water-resistant.", 49.99, "USD", "Electronics", "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=facearea&w=480&h=480&q=80", true);
+    addProductToStore("Yoga Mat", "Non-slip, eco-friendly yoga mat.", 25.00, "USD", "Fitness", "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=480&h=480&q=80", true);
+  };
+
+  func addProductToStore(name : Text, description : Text, price : Float, currency : Text, category : Text, imageUrl : Text, inStock : Bool) {
+    let product : Product = {
+      id = nextId;
+      name;
+      description;
+      price;
+      currency;
+      category;
+      imageUrl;
+      inStock;
+    };
+    products.add(nextId, product);
+    nextId += 1;
+  };
+
+  public query ({ caller }) func getAllProducts() : async [Product] {
+    products.values().toArray();
+  };
+
+  public query ({ caller }) func searchProducts(searchTerm : Text) : async [Product] {
+    let filtered = products.values().toArray().filter(
+      func(product) {
+        product.name.toLower().contains(#text(searchTerm.toLower()));
+      }
+    );
+    filtered;
+  };
+
+  public query ({ caller }) func getProductsSortedByPrice() : async [Product] {
+    products.values().toArray().sort(Product.compareByPrice);
+  };
+
+  public shared ({ caller }) func addProduct(productInput : {
+    name : Text;
+    description : Text;
+    price : Float;
+    currency : Text;
+    category : Text;
+    imageUrl : Text;
+    inStock : Bool;
+  }) : async Nat {
+    let product : Product = {
+      id = nextId;
+      name = productInput.name;
+      description = productInput.description;
+      price = productInput.price;
+      currency = productInput.currency;
+      category = productInput.category;
+      imageUrl = productInput.imageUrl;
+      inStock = productInput.inStock;
+    };
+    products.add(nextId, product);
+    let currentId = nextId;
+    nextId += 1;
+    currentId;
+  };
+
+  public shared ({ caller }) func updateProduct(product : Product) : async () {
+    switch (products.get(product.id)) {
+      case (null) { Runtime.trap("Product does not exist") };
+      case (?_) {
+        products.add(product.id, product);
+      };
+    };
+  };
+
+  public shared ({ caller }) func deleteProduct(id : Nat) : async () {
+    if (not products.containsKey(id)) {
+      Runtime.trap("Product does not exist");
+    };
+    products.remove(id);
+  };
+
+  public shared ({ caller }) func toggleProductStock(id : Nat, inStock : Bool) : async () {
+    switch (products.get(id)) {
+      case (null) { Runtime.trap("Product does not exist") };
+      case (?product) {
+        let updatedProduct : Product = { product with inStock };
+        products.add(id, updatedProduct);
+      };
+    };
+  };
+};

@@ -1,0 +1,48 @@
+{
+  "kind": "spec_vs_diff_report",
+  "version": "1.0",
+  "generatedAt": "2026-02-05T21:55:28.226Z",
+  "summary": "Diff adds PWA manifest + meta tags, a service worker with offline fallback and registration from App.tsx, an in-app install prompt UI, and a Play Store TWA packaging guide. Icon image files themselves are not evidenced in the diff summary, and parts of the Play Store guide are truncated so some AC items cannot be confirmed.",
+  "missing_requirements": [
+    {
+      "id": "REQ-1",
+      "requirement": "Provide the required PWA icon assets and ensure all manifest icon URLs resolve successfully (no 404s).",
+      "reason": "The manifest references three icon files under /assets/generated/, but the diff summary does not show these image assets being added or present, so URL resolvability cannot be verified from the provided evidence.",
+      "evidence": [
+        "frontend/public/manifest.webmanifest (references /assets/generated/pwa-icon-192.dim_192x192.png, /assets/generated/pwa-icon-512.dim_512x512.png, /assets/generated/pwa-icon-maskable-512.dim_512x512.png)"
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "requirement": "Include complete step-by-step TWA publishing instructions covering signing keystore generation, how to build APK/AAB (noting Play requires AAB), and what to upload to Play Console.",
+      "reason": "A guide file is added and includes the production URL and a keystore section heading, but the diff content is truncated mid-guide, so it is not possible to confirm inclusion of all required steps (AAB build steps and Play Console upload instructions) from the provided excerpt.",
+      "evidence": [
+        "frontend/docs/PLAY_STORE_TWA_GUIDE.md (truncated; ends around 'Step 3: Generate a Signing Key')"
+      ]
+    }
+  ],
+  "hallucinated_features": [
+    {
+      "description": "Updates to internal tracking/state files not requested by the BuildRequest (e.g., project_state.json and frontend-file-summaries.txt).",
+      "reason": "The BuildRequest requirements focus on PWA/TWA functionality and documentation; changes to these meta/project summary files are not part of REQ-1..REQ-4.",
+      "evidence": [
+        "project_state.json",
+        "frontend-file-summaries.txt"
+      ]
+    }
+  ],
+  "confidence": 0.63,
+  "changed_files": [
+    "frontend-file-summaries.txt",
+    "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
+    "frontend/index.html",
+    "frontend/public/manifest.webmanifest",
+    "frontend/public/offline.html",
+    "frontend/public/sw.js",
+    "frontend/src/App.tsx",
+    "frontend/src/components/PwaInstallPrompt.tsx",
+    "frontend/src/components/StoreHeader.tsx",
+    "frontend/src/pwa/registerServiceWorker.ts",
+    "project_state.json"
+  ]
+}

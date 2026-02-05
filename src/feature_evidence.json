@@ -1,0 +1,82 @@
+{
+  "kind": "feature_evidence_report",
+  "features": [
+    {
+      "featureId": "feature-add-progressive-web-app-pwa-support-so-the-website-can-be-installed-on-android-add-to-home-screen-and-used-as-the-basis-for-a-play-store-trusted-web-activity-twa-this-includes-adding-a-web-app-manifest-appropriate-meta-tags-and-required-icon-assets",
+      "featureTitle": "Add Progressive Web App (PWA) support so the website can be installed on Android (Add to Home Screen) and used as the basis for a Play Store Trusted Web Activity (TWA). This includes adding a web app manifest, appropriate meta tags, and required icon assets.",
+      "files": [
+        "frontend/index.html",
+        "frontend/public/manifest.webmanifest"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-service-worker-and-registration-to-enable-basic-offline-resilience-for-the-app-shell-at-minimum-cache-the-entry-html-js-css-bundles-and-a-simple-offline-fallback-page-response-registration-must-be-done-without-modifying-immutable-files-do-not-edit-frontend-src-main-tsx",
+      "featureTitle": "Add a service worker and registration to enable basic offline resilience for the app shell (at minimum: cache the entry HTML, JS/CSS bundles, and a simple offline fallback page/response). Registration must be done without modifying immutable files (do not edit frontend/src/main.tsx).",
+      "files": [
+        "frontend/public/offline.html",
+        "frontend/public/sw.js",
+        "frontend/src/App.tsx",
+        "frontend/src/pwa/registerServiceWorker.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-an-in-app-user-flow-that-helps-the-user-install-the-app-on-android-e-g-an-install-app-button-shown-when-the-beforeinstallprompt-event-is-available-plus-a-fallback-instruction-tooltip-text-when-it-is-not-available",
+      "featureTitle": "Add an in-app user flow that helps the user install the app on Android (e.g., an 'Install App' button shown when the beforeinstallprompt event is available, plus a fallback instruction tooltip/text when it is not available).",
+      "files": [
+        "frontend/src/components/PwaInstallPrompt.tsx",
+        "frontend/src/components/StoreHeader.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-provide-a-play-store-publishing-path-by-adding-a-clear-english-step-by-step-guide-inside-the-project-as-a-document-file-in-the-repo-explaining-how-to-produce-an-android-apk-aab-using-a-trusted-web-activity-twa-wrapper-e-g-android-studio-bubblewrap-for-https-bajyasmarketshop-icp0-io-including-required-settings-package-name-versioning-icons-signing-keystore-and-noting-that-google-play-typically-requires-an-aab",
+      "featureTitle": "Provide a Play Store publishing path by adding a clear, English step-by-step guide inside the project (as a document file in the repo) explaining how to produce an Android APK/AAB using a Trusted Web Activity (TWA) wrapper (e.g., Android Studio + Bubblewrap) for https://bajyasmarketshop.icp0.io, including required settings (package name, versioning, icons, signing keystore) and noting that Google Play typically requires an AAB.",
+      "files": [
+        "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    }
+  ]
+}

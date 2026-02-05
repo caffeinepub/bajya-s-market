@@ -1,2 +1,3 @@
-# bajya-s-market
-Exported from Caffeine project: Make the store installable as an Android-ready PWA and provide Play Store (TWA) packaging steps
+## 
+
+To run app build and run docker image: `docker build -t app . docker run -it --network host app`
