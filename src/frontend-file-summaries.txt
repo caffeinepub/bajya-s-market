@@ -1,6 +1,6 @@
 {
   "frontend/src/App.tsx": "Main application component that sets up TanStack Router with all routes including a NotFoundPage for 404 handling, registers the service worker on mount for PWA functionality, and runs a non-blocking runtime smoke check to verify backend connectivity.",
-  "frontend/src/components/StoreLayout.tsx": "Layout wrapper component that provides consistent header and footer across all pages with an Outlet for page content.",
+  "frontend/src/components/StoreLayout.tsx": "Layout wrapper component that provides consistent header, footer, and the new PWA update banner across all pages with an Outlet for page content.",
   "frontend/src/components/StoreHeader.tsx": "Responsive header component with logo, navigation, admin link for authenticated users, PWA install prompt, and mobile menu.",
   "frontend/src/components/StoreFooter.tsx": "Footer component with store information, quick links, brand promise, and attribution to caffeine.ai with a heart icon.",
   "frontend/src/pages/HomePage.tsx": "Landing page featuring a hero section with low-price messaging, feature cards highlighting store benefits, featured products grid, and a call-to-action section.",
@@ -19,12 +19,12 @@
   "frontend/src/components/admin/AdminProductForm.tsx": "Comprehensive product form with validation for name, price, currency, category, description, stock status, and image upload supporting both URL input and local file conversion to Data URL.",
   "frontend/src/utils/imageToDataUrl.ts": "Utility function that converts a File object (image) to a Data URL (base64 string) using FileReader for product image uploads.",
   "frontend/src/utils/toUserMessage.ts": "Helper function that normalizes unknown error values into user-friendly English messages for display in the admin UI.",
-  "frontend/index.html": "HTML entry point with PWA meta tags, manifest link, theme-color, and icon references for Android installation support.",
+  "frontend/index.html": "HTML entry point with complete PWA meta tags including manifest link, theme-color, Apple-specific meta tags, and mobile-web-app-capable for broader PWA support.",
   "frontend/public/manifest.webmanifest": "Web app manifest defining app metadata, display mode, theme colors, icons (including maskable), and shortcuts for PWA installation.",
   "frontend/public/offline.html": "Standalone offline fallback page with branded styling that displays when the user is offline and cached content is unavailable.",
-  "frontend/public/sw.js": "Service worker implementing network-first caching strategy with offline fallback, precaching essential assets, and automatic cache management.",
-  "frontend/src/pwa/registerServiceWorker.ts": "Helper module that safely registers the service worker on page load with hardened error handling that logs warnings instead of throwing exceptions, and detects service worker updates.",
-  "frontend/src/components/PwaInstallPrompt.tsx": "Reusable component that detects PWA install availability, shows native install prompt when available, or displays manual installation instructions using Popover.",
+  "frontend/public/sw.js": "Service worker implementing network-first caching with offline fallback, now with improved fetch interception that skips API calls and non-same-origin requests, message handler for SKIP_WAITING updates, and better cache management.",
+  "frontend/src/pwa/registerServiceWorker.ts": "Service worker registration module that detects updates and dispatches custom events (swUpdateReady, swControllerChange) for the UI to consume, enabling user-controlled update flow.",
+  "frontend/src/components/PwaInstallPrompt.tsx": "Enhanced PWA install prompt component with improved iOS detection (navigator.standalone), native install prompt when available, and comprehensive fallback instructions for both Android Chrome and iOS Safari.",
   "frontend/docs/PLAY_STORE_TWA_GUIDE.md": "Comprehensive step-by-step guide for packaging the PWA as a TWA and publishing to Google Play Store, now including a dedicated Step 3 section for building debug APKs with explicit commands, expected output paths (frontend/artifacts/app-debug.apk), installation instructions via adb and file transfer, troubleshooting tips, and clarification that debug APKs wrap the live manifest URL and automatically reflect web app updates.",
   "frontend/scripts/twa-init.sh": "Runnable bash script that initializes a Bubblewrap TWA project from the live manifest URL (https://bajyasmarketshop.icp0.io/manifest.webmanifest), explicitly printing the manifest URL during init, with validation and next-step guidance.",
   "frontend/scripts/twa-build-apk-debug.sh": "Runnable bash script that builds a debug APK using Bubblewrap from the live manifest URL, copies the generated APK to frontend/artifacts/app-debug.apk for easy download, and provides installation instructions.",
@@ -41,5 +41,6 @@
   "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png": "512x512 PWA icon referenced by the web app manifest for high-resolution displays and splash screens.",
   "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png": "512x512 maskable PWA icon with safe zone padding for adaptive icon support on Android devices.",
   "frontend/src/config/index.ts": "Backend actor configuration module that exports createActorWithConfig function to initialize the backend canister actor with optional identity and agent options, handling both local and mainnet environments, with an inline IDL factory definition that avoids type conflicts.",
-  "frontend/src/backend.did.ts": "Candid interface factory definition for the backend canister that provides IDL type definitions for all backend methods including product management, user profiles, and access control."
+  "frontend/src/backend.did.ts": "Candid interface factory definition for the backend canister that provides IDL type definitions for all backend methods including product management, user profiles, and access control.",
+  "frontend/src/components/PwaUpdateBanner.tsx": "Global banner component that listens for service worker updates and displays a user-friendly update notification with a Refresh button to activate the new version."
 }

@@ -1,42 +1,55 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project to be turned into a Progressive Web App (PWA) so users can install it on mobile devices.",
   "architectural_notes": [
-    "User approved pushing Draft Version 9 live to production (trigger production build/deploy)."
+    "Add PWA support (web app manifest + service worker) to enable installability and offline-capable behavior."
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- App icon, square (pwa-icon-192.dim_192x192.png) 192x192\n- App icon, square (pwa-icon-512.dim_512x512.png) 512x512\n- App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512",
   "existing_features": [
     {
-      "id": "feature-identify-and-fix-the-root-cause-of-the-current-go-live-production-deployment-failure-previously-encountered-while-launching-version-8-so-that-the-app-can-be-successfully-promoted-from-draft-to-live-production",
-      "title": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+      "id": "feature-ensure-the-app-meets-installable-pwa-requirements-by-validating-and-if-needed-updating-the-pwa-manifest-and-html-metadata-name-short-name-start-url-scope-display-mode-theme-background-colors-icons-and-apple-install-meta-tags-so-that-the-manifest-is-correctly-detected-by-browsers-and-the-app-can-be-installed-on-mobile-and-desktop",
+      "title": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-after-the-deployment-fix-verify-the-application-is-live-and-usable-at-the-expected-live-pwa-origin-https-bajyasmarketshop-icp0-io-including-basic-smoke-checks-for-routing-and-product-loading",
-      "title": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
+      "id": "feature-harden-service-worker-behavior-for-a-reliable-pwa-experience-ensure-the-service-worker-is-registered-in-supported-browsers-provides-an-offline-fallback-for-navigation-when-the-network-is-unavailable-and-uses-a-cache-strategy-that-avoids-breaking-non-get-requests-and-non-http-s-requests",
+      "title": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
+      "reqIds": [
+        "REQ-2"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-user-facing-update-flow-for-the-pwa-so-users-are-informed-when-a-new-version-is-available-and-can-refresh-to-activate-the-updated-service-worker-e-g-show-a-small-banner-toast-with-a-refresh-action-when-an-update-is-installed-and-the-page-is-controlled-by-an-older-worker",
+      "title": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
       "reqIds": [
         "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-there-is-an-in-app-installation-entry-point-provide-an-install-app-control-that-uses-the-beforeinstallprompt-flow-when-available-and-provides-clear-fallback-instructions-when-the-install-prompt-is-not-available-or-the-app-is-already-installed",
+      "title": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+      "reqIds": [
+        "REQ-4"
       ],
       "version": 1
     }
   ],
   "new_feature_requests": [
     {
-      "id": "AR-2",
-      "summary": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
-      "reqIds": [
-        "REQ-2"
-      ],
+      "id": "AR-1",
+      "summary": "Convert the existing web app into a Progressive Web App (PWA) for installable mobile experience",
+      "reqIds": [],
       "status": "pending"
     }
   ],
-  "projectName": "Push current deployment live to production (fix go-live issues and verify live PWA)",
+  "projectName": "Convert the existing web app into an installable Progressive Web App (PWA)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

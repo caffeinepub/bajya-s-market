@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bajyas-market-v1';
+const CACHE_NAME = 'bajyas-market-v2';
 const OFFLINE_URL = '/offline.html';
 
 const PRECACHE_ASSETS = [
@@ -15,11 +15,11 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(PRECACHE_ASSETS).catch((err) => {
-        console.warn('Failed to precache some assets:', err);
+        console.warn('[SW] Failed to precache some assets:', err);
       });
     })
   );
-  self.skipWaiting();
+  // Don't skip waiting automatically - let the UI control this
 });
 
 // Activate event - clean up old caches
@@ -38,6 +38,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+// Message handler for update flow
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 // Fetch event - network-first strategy with offline fallback
 self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
@@ -50,14 +57,18 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // Skip API calls to the backend canister (they should fail fast, not be cached)
+  const url = new URL(event.request.url);
+  if (url.pathname.includes('/api/') || url.hostname.includes('.ic0.app') || url.hostname.includes('.icp0.io')) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Clone the response before caching
-        const responseToCache = response.clone();
-        
-        // Cache successful responses
-        if (response.status === 200) {
+        // Only cache same-origin GET requests with successful responses
+        if (response.status === 200 && url.origin === self.location.origin) {
+          const responseToCache = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });

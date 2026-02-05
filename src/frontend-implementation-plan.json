@@ -1,91 +1,123 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Fix production go-live issues and verify live PWA readiness (frontend-only)",
+  "title": "Make the existing React web app installable as a reliable PWA",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Fix the frontend-side root cause(s) that prevent production go-live/build from succeeding (e.g., missing module exports / type mismatches) while preserving core flows.",
+      "summary": "Validate and update the web manifest + HTML metadata so browsers detect the PWA and it is installable on mobile/desktop.",
       "acceptanceCriteria": [
-        "A production deployment (go-live) completes successfully without errors.",
-        "No regression in core functionality (product list fetch, product details route, admin page access gating) after the fix.",
-        "If backend state schema changes are required, add a conditional Motoko migration in `backend/migration.mo`; otherwise do not change migration behavior."
+        "The manifest is accessible at `/manifest.webmanifest` and is valid JSON that includes `name`, `short_name`, `start_url`, `scope`, `display`, `theme_color`, `background_color`, and a 192x192 + 512x512 icon set (including a maskable icon).",
+        "`frontend/index.html` contains a `<link rel=\"manifest\" ...>` tag and appropriate PWA-related meta tags (at minimum: `theme-color`, and Apple install meta + touch icon).",
+        "Installing the app from a supported browser results in a standalone app window (display-mode: standalone)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/config/index.ts",
+          "path": "frontend/public/manifest.webmanifest",
+          "operation": "modify",
+          "description": "Ensure the manifest fields required for installability are present and correct (name/short_name, start_url/scope, display=standalone, theme/background colors) and that icons reference the generated assets including 192x192, 512x512, and a 512x512 maskable icon."
+        },
+        {
+          "path": "frontend/index.html",
+          "operation": "modify",
+          "description": "Confirm the manifest link and required PWA metadata are present and detected by browsers; add/adjust any missing install-related meta tags (keep `theme-color`, Apple install meta tags, and Apple touch icon; consider also adding `mobile-web-app-capable` for broader support)."
+        },
+        {
+          "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
           "operation": "create",
-          "description": "Create a config barrel that exports the backend actor factory used across the app (e.g., `createActorWithConfig`) to resolve current build/go-live failures from missing module resolution. Use the core-infrastructure component’s backend connection configuration patterns. Verify the component's usage instructions before implementing."
+          "description": "Add the generated 192x192 PWA icon asset and ensure it is served as a static public asset for both the manifest and HTML icon link tags."
         },
         {
-          "path": "frontend/src/hooks/useActor.ts",
-          "operation": "modify",
-          "description": "Adjust actor initialization to be production-build safe: align the actor type usage with the generated backend typings (or safely narrow/cast for internal initialization helpers) so TypeScript does not fail go-live builds while keeping the existing admin access gating behavior intact. Verify the authorization component’s frontend usage instructions before implementing."
+          "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
+          "operation": "create",
+          "description": "Add the generated 512x512 PWA icon asset and ensure it is served as a static public asset for both the manifest and HTML icon link tags."
         },
         {
-          "path": "frontend/src/utils/runtimeSmokeCheck.ts",
-          "operation": "modify",
-          "description": "Update imports to use the new `frontend/src/config/index.ts` barrel (rather than relying on a potentially missing path) so production builds resolve consistently; keep the smoke check non-blocking and non-throwing."
+          "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
+          "operation": "create",
+          "description": "Add the generated 512x512 maskable PWA icon asset and ensure it is served as a static public asset referenced by the manifest icons list."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Ensure all PWA icon assets referenced by the manifest exist under frontend/public/assets/generated with exact filenames and sizes.",
+      "summary": "Harden service worker behavior: reliable registration, offline fallback for navigations, and safe fetch interception rules.",
       "acceptanceCriteria": [
-        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192x192.",
-        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512x512.",
-        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512x512 and suitable for maskable usage (safe-area composition).",
-        "The manifest icons load without 404s when the app is served (no missing icon requests in browser devtools network panel)."
+        "A service worker is registered at `/sw.js` and activates successfully on first load in a modern browser.",
+        "When the network is disconnected and the user refreshes or navigates to a route, a user-friendly offline fallback page is served for navigation requests.",
+        "Non-GET requests are not intercepted by the service worker."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
-          "operation": "create",
-          "description": "Add the generated 192x192 PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-192.dim_192x192.png."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated 512x512 PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-512.dim_512x512.png."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated 512x512 maskable PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png (ensure maskable safe-area composition)."
-        },
-        {
-          "path": "frontend/public/manifest.webmanifest",
+          "path": "frontend/public/sw.js",
           "operation": "modify",
-          "description": "Verify the manifest icon entries exactly match the required filenames and sizes and remain consistent with the generated assets under frontend/public/assets/generated/ (adjust only if any mismatch is found)."
+          "description": "Refine the fetch handler to keep the offline navigation fallback reliable while avoiding unsafe interception: continue skipping non-GET requests and non-http(s) requests; additionally constrain caching/interception to safe request types (e.g., same-origin GET and/or navigation/static assets) so background/API-like requests are less likely to be cached incorrectly."
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "operation": "modify",
+          "description": "Add a message handler to support a safe update flow (e.g., handle a 'SKIP_WAITING' message) without changing behavior for non-GET requests."
+        },
+        {
+          "path": "frontend/public/offline.html",
+          "operation": "modify",
+          "description": "Ensure the offline fallback page content remains user-friendly and fully self-contained so it can be served for navigation requests when the network is unavailable."
+        },
+        {
+          "path": "frontend/src/pwa/registerServiceWorker.ts",
+          "operation": "modify",
+          "description": "Keep service worker registration at `/sw.js`, and enhance registration lifecycle handling to better support offline readiness and later UI-driven updates (without relying on console logs only)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add lightweight runtime checks and guardrails to help verify the live PWA works at the production origin, including routing, product loading, 404 behavior, and service worker registration stability.",
+      "summary": "Add a user-facing in-app update prompt that appears when a new service worker version is available and allows refreshing to activate it.",
       "acceptanceCriteria": [
-        "Visiting https://bajyasmarketshop.icp0.io loads the app successfully.",
-        "Navigating to the Home page, Products page, and a Product Details page works without routing errors.",
-        "The product list loads successfully from the backend (no uncaught exceptions; user-facing errors are handled).",
-        "The 404 / Not Found route renders when visiting an unknown path.",
-        "Service worker registers without throwing runtime errors in console (warnings are acceptable)."
+        "When a new service worker is installed while the app is open, the UI displays a clear English message indicating an update is available.",
+        "Clicking the refresh action reloads the app and the new service worker takes control (confirmed by absence of the update prompt after reload)."
       ],
       "file_operations": [
         {
-          "path": "frontend/src/App.tsx",
-          "operation": "modify",
-          "description": "Wire the existing non-blocking runtime smoke check into app startup (alongside service worker registration) to aid production verification of backend connectivity and routing without impacting user experience."
-        },
-        {
           "path": "frontend/src/pwa/registerServiceWorker.ts",
           "operation": "modify",
-          "description": "Harden service worker registration logging/error handling so production runtime does not throw uncaught errors during registration (keep warnings/logs acceptable per requirement)."
+          "description": "Emit an app-consumable signal when an update is ready (e.g., dispatch a window CustomEvent when a new worker reaches 'installed' while a controller exists), and track controller changes so the UI can hide the prompt after reload/control change."
         },
         {
-          "path": "frontend/src/utils/runtimeSmokeCheck.ts",
+          "path": "frontend/src/components/PwaUpdateBanner.tsx",
+          "operation": "create",
+          "description": "Create a small global banner component that listens for the service-worker update-ready signal, shows a clear English update-available message, and offers a 'Refresh' action that triggers the update flow (request skip-waiting when applicable, then reload the page)."
+        },
+        {
+          "path": "frontend/src/components/StoreLayout.tsx",
           "operation": "modify",
-          "description": "Ensure smoke check gracefully handles failures and logs actionable diagnostics for production verification (no uncaught exceptions), using the same actor creation path as the rest of the app via the core-infrastructure configuration. Verify the component's usage instructions before implementing."
+          "description": "Wire the new PwaUpdateBanner into the app layout so it is visible across routes (global placement above the routed content and/or header) and is not an orphan component."
+        },
+        {
+          "path": "frontend/public/sw.js",
+          "operation": "modify",
+          "description": "Support the UI update flow by responding to a 'SKIP_WAITING' message (or equivalent) so a newly installed worker can activate promptly when the user chooses Refresh."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure an in-app installation entry point exists using beforeinstallprompt when available, with clear fallback instructions when not.",
+      "acceptanceCriteria": [
+        "If the `beforeinstallprompt` event is available, clicking “Install App” triggers the native install prompt.",
+        "If the app is already installed (standalone display-mode), the install UI is not shown.",
+        "If the prompt is not available, the UI shows clear English installation instructions for at least Android Chrome."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/components/PwaInstallPrompt.tsx",
+          "operation": "modify",
+          "description": "Harden install-UI logic: keep the 'Install App' control as an in-app entry point, ensure it is hidden when installed (include robust installed detection such as display-mode: standalone and iOS navigator.standalone), and keep/clarify the English fallback instructions for Android Chrome when beforeinstallprompt is not available."
+        },
+        {
+          "path": "frontend/src/components/StoreHeader.tsx",
+          "operation": "modify",
+          "description": "Verify the 'Install App' control remains consistently discoverable in both desktop and mobile header navigation (and remains hidden when installed), keeping user-facing text in English."
         }
       ]
     }

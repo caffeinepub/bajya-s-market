@@ -2,11 +2,10 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-identify-and-fix-the-root-cause-of-the-current-go-live-production-deployment-failure-previously-encountered-while-launching-version-8-so-that-the-app-can-be-successfully-promoted-from-draft-to-live-production",
-      "featureTitle": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+      "featureId": "feature-ensure-the-app-meets-installable-pwa-requirements-by-validating-and-if-needed-updating-the-pwa-manifest-and-html-metadata-name-short-name-start-url-scope-display-mode-theme-background-colors-icons-and-apple-install-meta-tags-so-that-the-manifest-is-correctly-detected-by-browsers-and-the-app-can-be-installed-on-mobile-and-desktop",
+      "featureTitle": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
       "files": [
-        "frontend/src/config/index.ts",
-        "frontend/src/hooks/useActor.ts"
+        "frontend/index.html"
       ],
       "components": [
         "core-infrastructure@1.0.2",
@@ -22,10 +21,32 @@
       "confidence": "high"
     },
     {
-      "featureId": "feature-after-the-deployment-fix-verify-the-application-is-live-and-usable-at-the-expected-live-pwa-origin-https-bajyasmarketshop-icp0-io-including-basic-smoke-checks-for-routing-and-product-loading",
-      "featureTitle": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
+      "featureId": "feature-harden-service-worker-behavior-for-a-reliable-pwa-experience-ensure-the-service-worker-is-registered-in-supported-browsers-provides-an-offline-fallback-for-navigation-when-the-network-is-unavailable-and-uses-a-cache-strategy-that-avoids-breaking-non-get-requests-and-non-http-s-requests",
+      "featureTitle": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
       "files": [
-        "frontend/src/App.tsx",
+        "frontend/public/sw.js",
+        "frontend/src/pwa/registerServiceWorker.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-2"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-user-facing-update-flow-for-the-pwa-so-users-are-informed-when-a-new-version-is-available-and-can-refresh-to-activate-the-updated-service-worker-e-g-show-a-small-banner-toast-with-a-refresh-action-when-an-update-is-installed-and-the-page-is-controlled-by-an-older-worker",
+      "featureTitle": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
+      "files": [
+        "frontend/public/sw.js",
+        "frontend/src/components/PwaUpdateBanner.tsx",
+        "frontend/src/components/StoreLayout.tsx",
         "frontend/src/pwa/registerServiceWorker.ts"
       ],
       "components": [
@@ -38,6 +59,25 @@
       ],
       "testIds": [
         "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-there-is-an-in-app-installation-entry-point-provide-an-install-app-control-that-uses-the-beforeinstallprompt-flow-when-available-and-provides-clear-fallback-instructions-when-the-install-prompt-is-not-available-or-the-app-is-already-installed",
+      "featureTitle": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+      "files": [
+        "frontend/src/components/PwaInstallPrompt.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
       ],
       "confidence": "high"
     }

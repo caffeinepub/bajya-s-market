@@ -1,11 +1,12 @@
 # Specification
 
 ## Summary
-**Goal:** Fix the production go-live deployment so the app can be promoted to live, ensure required PWA icon assets match the manifest, and verify the live PWA works at the expected production URL.
+**Goal:** Convert the existing web app into an installable Progressive Web App (PWA) with reliable offline behavior and clear install/update user flows.
 
 **Planned changes:**
-- Identify and fix the root cause of the current production deployment/go-live failure so a production deployment completes successfully.
-- Ensure all PWA icons referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact required filenames and pixel dimensions (including a maskable-safe icon).
-- After deploying, perform smoke-check verification at https://bajyasmarketshop.icp0.io for app load, routing (Home/Products/Product Details/404), backend product list loading, and service worker registration (no runtime errors).
+- Validate and, if needed, update the PWA manifest and HTML metadata so browsers detect the app as installable (including required fields, icons, and Apple install meta tags).
+- Register and harden the service worker to support offline navigation fallback and safe caching behavior that does not interfere with non-GET or non-http(s) requests.
+- Add an in-app update notification that prompts users when a new version is available and provides a “Refresh” action to activate it.
+- Add an in-app “Install App” entry point using `beforeinstallprompt` when available, hide it when already installed, and show clear fallback install instructions when the prompt is unavailable.
 
-**User-visible outcome:** The app is successfully live at https://bajyasmarketshop.icp0.io as a usable PWA, with working navigation and product loading, and no missing PWA icon requests.
+**User-visible outcome:** Users can install the app on mobile/desktop as a standalone PWA, see an offline-friendly fallback when disconnected, get prompted when an update is available with a refresh action, and use an in-app “Install App” control (with guidance when install prompting isn’t available).

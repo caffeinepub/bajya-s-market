@@ -1,6 +1,7 @@
 import { Outlet } from '@tanstack/react-router';
 import StoreHeader from './StoreHeader';
 import StoreFooter from './StoreFooter';
+import PwaUpdateBanner from './PwaUpdateBanner';
 
 export default function StoreLayout() {
   return (
@@ -10,6 +11,7 @@ export default function StoreLayout() {
         <Outlet />
       </main>
       <StoreFooter />
+      <PwaUpdateBanner />
     </div>
   );
 }

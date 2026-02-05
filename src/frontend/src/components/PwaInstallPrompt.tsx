@@ -18,8 +18,11 @@ export default function PwaInstallPrompt() {
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
-    // Check if already installed
-    if (window.matchMedia('(display-mode: standalone)').matches) {
+    // Check if already installed (multiple methods for better detection)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+    const isIOSStandalone = (window.navigator as any).standalone === true;
+    
+    if (isStandalone || isIOSStandalone) {
       setIsInstalled(true);
       return;
     }
@@ -54,7 +57,7 @@ export default function PwaInstallPrompt() {
     const { outcome } = await deferredPrompt.userChoice;
 
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      console.log('[PWA] User accepted the install prompt');
     }
 
     setDeferredPrompt(null);
@@ -120,12 +123,22 @@ export default function PwaInstallPrompt() {
               </div>
             </div>
             <div className="space-y-2 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground">On Android Chrome:</p>
-              <ol className="list-decimal list-inside space-y-1 pl-2">
-                <li>Tap the menu (⋮) in the top right</li>
-                <li>Select "Add to Home screen"</li>
-                <li>Tap "Add" to confirm</li>
-              </ol>
+              <div>
+                <p className="font-medium text-foreground">On Android Chrome:</p>
+                <ol className="list-decimal list-inside space-y-1 pl-2 mt-1">
+                  <li>Tap the menu (⋮) in the top right</li>
+                  <li>Select "Add to Home screen"</li>
+                  <li>Tap "Add" to confirm</li>
+                </ol>
+              </div>
+              <div className="pt-2">
+                <p className="font-medium text-foreground">On iOS Safari:</p>
+                <ol className="list-decimal list-inside space-y-1 pl-2 mt-1">
+                  <li>Tap the Share button (□↑)</li>
+                  <li>Scroll and tap "Add to Home Screen"</li>
+                  <li>Tap "Add" to confirm</li>
+                </ol>
+              </div>
             </div>
           </div>
         </PopoverContent>

@@ -1,89 +1,98 @@
 {
   "kind": "build_request",
-  "title": "Push current deployment live to production (fix go-live issues and verify live PWA)",
+  "title": "Convert the existing web app into an installable Progressive Web App (PWA)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
-      "target": "both",
+      "text": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "msg-5"
         ],
         "quotes": [
-          "Yes pushing it to live production"
+          "Trun into a progressive web app"
         ]
       },
       "acceptanceCriteria": [
-        "A production deployment (go-live) completes successfully without errors.",
-        "No regression in core functionality (product list fetch, product details route, admin page access gating) after the fix.",
-        "If backend state schema changes are required, add a conditional Motoko migration in `backend/migration.mo`; otherwise do not change migration behavior."
+        "The manifest is accessible at `/manifest.webmanifest` and is valid JSON that includes `name`, `short_name`, `start_url`, `scope`, `display`, `theme_color`, `background_color`, and a 192x192 + 512x512 icon set (including a maskable icon).",
+        "`frontend/index.html` contains a `<link rel=\"manifest\" ...>` tag and appropriate PWA-related meta tags (at minimum: `theme-color`, and Apple install meta + touch icon).",
+        "Installing the app from a supported browser results in a standalone app window (display-mode: standalone)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
+      "text": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "msg-5"
         ],
         "quotes": [
-          "Yes pushing it to live production"
+          "Trun into a progressive web app"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192x192.",
-        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512x512.",
-        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512x512 and suitable for maskable usage (safe-area composition).",
-        "The manifest icons load without 404s when the app is served (no missing icon requests in browser devtools network panel)."
+        "A service worker is registered at `/sw.js` and activates successfully on first load in a modern browser.",
+        "When the network is disconnected and the user refreshes or navigates to a route, a user-friendly offline fallback page is served for navigation requests.",
+        "Non-GET requests are not intercepted by the service worker."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
-      "target": "both",
+      "text": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
+      "target": "frontend",
       "source": {
         "messageIds": [
-          "recent-1"
+          "msg-5"
         ],
         "quotes": [
-          "Yes pushing it to live production"
+          "Trun into a progressive web app"
         ]
       },
       "acceptanceCriteria": [
-        "Visiting https://bajyasmarketshop.icp0.io loads the app successfully.",
-        "Navigating to the Home page, Products page, and a Product Details page works without routing errors.",
-        "The product list loads successfully from the backend (no uncaught exceptions; user-facing errors are handled).",
-        "The 404 / Not Found route renders when visiting an unknown path.",
-        "Service worker registers without throwing runtime errors in console (warnings are acceptable)."
+        "When a new service worker is installed while the app is open, the UI displays a clear English message indicating an update is available.",
+        "Clicking the refresh action reloads the app and the new service worker takes control (confirmed by absence of the update prompt after reload)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "msg-5"
+        ],
+        "quotes": [
+          "Trun into a progressive web app"
+        ]
+      },
+      "acceptanceCriteria": [
+        "If the `beforeinstallprompt` event is available, clicking “Install App” triggers the native install prompt.",
+        "If the app is already installed (standalone display-mode), the install UI is not shown.",
+        "If the prompt is not available, the UI shows clear English installation instructions for at least Android Chrome."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor with all logic in `backend/main.mo`; use `backend/migration.mo` only if existing stable state requires changes.",
-    "Do not edit any frontend files under `frontend/src/components/ui` or any paths listed as immutable in SYSTEM_CONTEXT.",
-    "Keep user-facing text in English."
+    "Frontend files listed as immutable in SYSTEM_CONTEXT must not be modified (compose existing UI components instead of editing them).",
+    "Keep the backend as a single Motoko actor; no backend changes are required for PWA functionality."
   ],
   "nonGoals": [
-    "Adding new product-store features beyond what is required to fix deployment/go-live.",
-    "Introducing third-party auth providers (only Internet Identity is supported).",
-    "Adding external databases or non-Motoko backend services.",
-    "Publishing to Google Play / TWA packaging (out of scope unless explicitly requested)."
+    "Publishing an APK/AAB directly from this project.",
+    "Adding third-party push notification services or real-time WebSocket features."
   ],
   "imageRequirements": {
-    "required": [
-      "App icon, square (pwa-icon-192.dim_192x192.png) 192x192",
-      "App icon, square (pwa-icon-512.dim_512x512.png) 512x512",
-      "App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512"
-    ],
+    "required": [],
     "edits": []
   },
   "userProfileUpdate": {
     "goalsToAdd": [],
     "goalsToRemove": [],
-    "preferencesToAdd": [],
+    "preferencesToAdd": [
+      "Use English for any user-facing text."
+    ],
     "preferencesToRemove": [],
     "miscToAdd": [],
     "miscToRemove": [],

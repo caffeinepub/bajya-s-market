@@ -12,10 +12,24 @@ export function registerServiceWorker() {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('[SW] New service worker available. Refresh to update.');
+                  // New service worker is ready but waiting
+                  console.log('[SW] New service worker available. Update ready.');
+                  
+                  // Dispatch custom event for UI to listen to
+                  window.dispatchEvent(new CustomEvent('swUpdateReady', {
+                    detail: { registration }
+                  }));
                 }
               });
             }
+          });
+
+          // Listen for controller change (after skip waiting)
+          navigator.serviceWorker.addEventListener('controllerchange', () => {
+            console.log('[SW] New service worker activated.');
+            
+            // Dispatch event to hide update banner
+            window.dispatchEvent(new CustomEvent('swControllerChange'));
           });
         })
         .catch((error) => {

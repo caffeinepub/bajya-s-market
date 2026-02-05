@@ -1,76 +1,88 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:37:12.399Z",
+  "generatedAt": "2026-02-05T22:58:01.072Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 3,
-    "implemented": 2,
+    "total": 4,
+    "implemented": 4,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+        "summary": "Ensure the app meets installable PWA requirements by validating and, if needed, updating the PWA manifest and HTML metadata (name/short_name, start_url/scope, display mode, theme/background colors, icons, and Apple install meta tags) so that the manifest is correctly detected by browsers and the app can be installed on mobile and desktop.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/config/index.ts",
-          "frontend/src/hooks/useActor.ts",
-          "frontend/src/utils/runtimeSmokeCheck.ts"
+          "frontend/public/manifest.webmanifest",
+          "frontend/index.html",
+          "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
+          "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
+          "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png"
         ],
         "matchedFiles": [
-          "frontend/src/config/index.ts",
-          "frontend/src/hooks/useActor.ts"
+          "frontend/index.html"
         ]
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
-        "status": "missing",
+        "summary": "Harden service worker behavior for a reliable PWA experience: ensure the service worker is registered in supported browsers, provides an offline fallback for navigation when the network is unavailable, and uses a cache strategy that avoids breaking non-GET requests and non-http(s) requests.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
-          "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
-          "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
-          "frontend/public/manifest.webmanifest"
+          "frontend/public/sw.js",
+          "frontend/public/sw.js",
+          "frontend/public/offline.html",
+          "frontend/src/pwa/registerServiceWorker.ts"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/public/sw.js",
+          "frontend/public/sw.js",
+          "frontend/src/pwa/registerServiceWorker.ts"
+        ]
       },
       {
         "id": "REQ-3",
-        "summary": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
+        "summary": "Add a user-facing update flow for the PWA so users are informed when a new version is available and can refresh to activate the updated service worker (e.g., show a small banner/toast with a “Refresh” action when an update is installed and the page is controlled by an older worker).",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/src/App.tsx",
           "frontend/src/pwa/registerServiceWorker.ts",
-          "frontend/src/utils/runtimeSmokeCheck.ts"
+          "frontend/src/components/PwaUpdateBanner.tsx",
+          "frontend/src/components/StoreLayout.tsx",
+          "frontend/public/sw.js"
         ],
         "matchedFiles": [
-          "frontend/src/App.tsx",
-          "frontend/src/pwa/registerServiceWorker.ts"
+          "frontend/src/pwa/registerServiceWorker.ts",
+          "frontend/src/components/PwaUpdateBanner.tsx",
+          "frontend/src/components/StoreLayout.tsx",
+          "frontend/public/sw.js"
+        ]
+      },
+      {
+        "id": "REQ-4",
+        "summary": "Ensure there is an in-app installation entry point: provide an “Install App” control that uses the `beforeinstallprompt` flow when available and provides clear fallback instructions when the install prompt is not available or the app is already installed.",
+        "status": "implemented",
+        "plannedFiles": [
+          "frontend/src/components/PwaInstallPrompt.tsx",
+          "frontend/src/components/StoreHeader.tsx"
+        ],
+        "matchedFiles": [
+          "frontend/src/components/PwaInstallPrompt.tsx"
         ]
       }
     ]
   },
   "changedFiles": [
-    "backend/authorization/MixinAuthorization.mo",
-    "backend/authorization/access-control.mo",
-    "backend/main.mo",
     "build-request.json",
-    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/src/App.tsx",
-    "frontend/src/backend.d.ts",
-    "frontend/src/backend.did.ts",
-    "frontend/src/backend.ts",
-    "frontend/src/config/index.ts",
-    "frontend/src/declarations/backend.did.d.ts",
-    "frontend/src/declarations/backend.did.js",
-    "frontend/src/hooks/useActor.ts",
+    "frontend/index.html",
+    "frontend/public/sw.js",
+    "frontend/src/components/PwaInstallPrompt.tsx",
+    "frontend/src/components/PwaUpdateBanner.tsx",
+    "frontend/src/components/StoreLayout.tsx",
     "frontend/src/pwa/registerServiceWorker.ts",
-    "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",
