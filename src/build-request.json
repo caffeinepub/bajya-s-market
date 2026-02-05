@@ -1,73 +1,71 @@
 {
   "kind": "build_request",
-  "title": "Generate a downloadable Android APK (TWA wrapper for the deployed PWA)",
+  "title": "Package the current PWA into a downloadable Android APK artifact (TWA)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Produce an installable Android **debug APK** for the currently deployed PWA using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
-      "target": "unknown",
+      "text": "Generate an installable Android debug APK that wraps the live PWA at https://bajyasmarketshop.icp0.io using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and output the resulting APK as a downloadable build artifact at `frontend/artifacts/app-debug.apk`.",
+      "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Yes genrate downloadable apk file"
+          "Wrap it into downloadable apk"
         ]
       },
       "acceptanceCriteria": [
-        "A debug APK is generated via Bubblewrap build (TWA) for the live PWA manifest URL.",
-        "The resulting file is available to the user as a downloadable artifact named `app-debug.apk` (or includes clear, explicit instructions on where to retrieve it from the build outputs if artifact download is platform-mediated).",
-        "The APK installs successfully on an Android device/emulator and launches into the PWA without browser UI chrome."
+        "Running `cd frontend/scripts && ./twa-build-apk-debug.sh` successfully builds a debug APK using Bubblewrap.",
+        "After a successful build, the file `frontend/artifacts/app-debug.apk` exists and is the latest build output (copied from Bubblewrap’s `app/build/outputs/apk/debug/app-debug.apk`).",
+        "The produced APK installs on an Android device/emulator and launches into the wrapped PWA domain (`bajyasmarketshop.icp0.io`)."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes (192x192, 512x512, 512x512 maskable).",
+      "text": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes, so TWA initialization/build does not fail due to missing icons.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Yes genrate downloadable apk file"
+          "Wrap it into downloadable apk"
         ]
       },
       "acceptanceCriteria": [
-        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192×192.",
-        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512×512.",
-        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512×512 and visually suitable as a maskable icon.",
-        "`frontend/public/manifest.webmanifest` icon `src` entries resolve correctly when the site is deployed (no 404s)."
+        "The following files exist in `frontend/public/assets/generated/` and have the exact pixel dimensions indicated in their filenames: `pwa-icon-192.dim_192x192.png`, `pwa-icon-512.dim_512x512.png`, and `pwa-icon-maskable-512.dim_512x512.png`.",
+        "`frontend/public/manifest.webmanifest` references icons that resolve correctly at runtime (no 404s when fetching the manifest and icon URLs)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add a simple repo-local, English-language reference (or update the existing guide) describing the exact command(s) to generate the debug APK using the existing scripts, and state the expected output path of the APK so a developer/user can reproduce the downloadable build.",
+      "text": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
       "target": "frontend",
       "source": {
         "messageIds": [
           "msg-4"
         ],
         "quotes": [
-          "Yes genrate downloadable apk file"
+          "Wrap it into downloadable apk"
         ]
       },
       "acceptanceCriteria": [
-        "Documentation clearly states the manifest URL used for TWA init and the command(s) to build the debug APK.",
-        "Documentation includes the expected Bubblewrap output path for the debug APK and a short note on installing it via `adb install`.",
-        "All user-facing documentation text is in English."
+        "Documentation includes the command to run (from repo root) to build the debug APK via the helper script.",
+        "Documentation explicitly states that the expected downloadable output is `frontend/artifacts/app-debug.apk`.",
+        "Documentation mentions required local prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) at a high level or links to the existing guide section that lists them."
       ]
     }
   ],
   "constraints": [
-    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
-    "Do not edit files under `frontend/src/components/ui` or the immutable hook/bootstrap paths listed in SYSTEM_CONTEXT.",
-    "Do not introduce external databases or non-Internet-Identity authentication."
+    "Do not modify files under `frontend/src/components/ui` (read-only).",
+    "Do not modify immutable hook/bootstrap files: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`.",
+    "Keep backend architecture as a single Motoko actor; no additional backend services."
   ],
   "nonGoals": [
-    "Implementing a native Android app (non-TWA) with custom native screens.",
-    "Adding mobile push notifications, deep native integrations, or third-party auth providers.",
-    "Publishing to Google Play Store (AAB submission) unless separately requested."
+    "Publishing the app to Google Play Store (AAB upload, store listing, signing key management) beyond providing local build instructions/scripts.",
+    "Implementing any native Android features beyond a TWA wrapper for the existing PWA.",
+    "Adding any non-Internet-Computer authentication providers or external databases/services."
   ],
   "imageRequirements": {
     "required": [

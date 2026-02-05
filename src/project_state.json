@@ -1,25 +1,15 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project involves building/deploying an Android app and generating a downloadable APK build artifact.",
-  "architectural_notes": [
-    "Android build/deployment pipeline needs to produce a downloadable APK artifact."
-  ],
+  "summary": "Package the current build into a downloadable Android APK.",
+  "architectural_notes": [],
   "known_issues": [],
   "isFixRequest": false,
   "imageRequirements": "## Required Images\n- App icon, square (pwa-icon-192.dim_192x192.png) 192x192\n- App icon, square (pwa-icon-512.dim_512x512.png) 512x512\n- App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512",
   "existing_features": [
     {
-      "id": "feature-produce-an-installable-android-debug-apk-for-the-currently-deployed-pwa-using-the-existing-bubblewrap-trusted-web-activity-twa-workflow-and-expose-the-resulting-app-debug-apk-as-a-downloadable-build-artifact-output-for-the-user",
-      "title": "Produce an installable Android **debug APK** for the currently deployed PWA using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-simple-repo-local-english-language-reference-or-update-the-existing-guide-describing-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-state-the-expected-output-path-of-the-apk-so-a-developer-user-can-reproduce-the-downloadable-build",
-      "title": "Add a simple repo-local, English-language reference (or update the existing guide) describing the exact command(s) to generate the debug APK using the existing scripts, and state the expected output path of the APK so a developer/user can reproduce the downloadable build.",
+      "id": "feature-provide-or-update-repo-local-english-documentation-that-states-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-the-expected-output-path-of-the-downloadable-apk-artifact",
+      "title": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
       "reqIds": [
         "REQ-3"
       ],
@@ -29,20 +19,28 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Generate a downloadable APK file (Android build artifact)",
+      "summary": "Generate and provide a downloadable Android APK for the current version/build.",
       "reqIds": [],
-      "status": "in_progress"
+      "status": "pending"
+    },
+    {
+      "id": "AR-2",
+      "summary": "Generate an installable Android debug APK that wraps the live PWA at https://bajyasmarketshop.icp0.io using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and output the resulting APK as a downloadable build artifact at `frontend/artifacts/app-debug.apk`.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "status": "pending"
     },
     {
       "id": "AR-3",
-      "summary": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes (192x192, 512x512, 512x512 maskable).",
+      "summary": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes, so TWA initialization/build does not fail due to missing icons.",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Generate a downloadable Android APK (TWA wrapper for the deployed PWA)",
+  "projectName": "Package the current PWA into a downloadable Android APK artifact (TWA)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

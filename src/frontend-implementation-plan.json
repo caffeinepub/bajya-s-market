@@ -1,79 +1,72 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Downloadable debug APK build via existing Bubblewrap TWA scripts + required PWA icon assets",
+  "title": "Build and document Bubblewrap TWA debug APK artifact for the live PWA",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Make the existing Bubblewrap TWA workflow produce a debug APK and surface it as a predictable, downloadable build output named app-debug.apk.",
+      "summary": "Ensure the existing Bubblewrap helper script builds a debug APK and outputs it as a predictable downloadable artifact at frontend/artifacts/app-debug.apk.",
       "acceptanceCriteria": [
-        "A debug APK is generated via Bubblewrap build (TWA) for the live PWA manifest URL.",
-        "The resulting file is available to the user as a downloadable artifact named `app-debug.apk` (or includes clear, explicit instructions on where to retrieve it from the build outputs if artifact download is platform-mediated).",
-        "The APK installs successfully on an Android device/emulator and launches into the PWA without browser UI chrome."
+        "Running `cd frontend/scripts && ./twa-build-apk-debug.sh` successfully builds a debug APK using Bubblewrap.",
+        "After a successful build, the file `frontend/artifacts/app-debug.apk` exists and is the latest build output (copied from Bubblewrap’s `app/build/outputs/apk/debug/app-debug.apk`).",
+        "The produced APK installs on an Android device/emulator and launches into the wrapped PWA domain (`bajyasmarketshop.icp0.io`)."
       ],
       "file_operations": [
         {
           "path": "frontend/scripts/twa-build-apk-debug.sh",
           "operation": "modify",
-          "description": "Update the debug APK build script to (1) confirm it is building the Bubblewrap TWA project created from the live manifest, and (2) copy the generated APK from the Bubblewrap output location into a stable repo-local artifact location (e.g., a dedicated artifacts folder) with the filename `app-debug.apk`, so the build output is easy to retrieve/download."
-        },
-        {
-          "path": "frontend/scripts/twa-init.sh",
-          "operation": "modify",
-          "description": "Ensure the script clearly uses the live PWA manifest URL for initializing the Bubblewrap TWA project and prints it during init (keeping the manifest URL explicit for reproducible debug APK builds)."
+          "description": "Harden the debug APK build script for the Bubblewrap TWA workflow: add prerequisite checks (e.g., Bubblewrap CLI present), validate/normalize artifact copy path so the final output is always `frontend/artifacts/app-debug.apk` when run via `cd frontend/scripts && ./twa-build-apk-debug.sh`, and keep the wrapped PWA manifest URL/domain set to `https://bajyasmarketshop.icp0.io/manifest.webmanifest` / `bajyasmarketshop.icp0.io`."
         },
         {
           "path": "frontend/artifacts/.gitkeep",
-          "operation": "create",
-          "description": "Add a tracked placeholder so the repo has a consistent, documented location for the generated debug APK artifact (the actual APK should be produced by the build script and placed here as `app-debug.apk`)."
+          "operation": "modify",
+          "description": "Keep the artifacts directory tracked and clarify (via comment if supported by the repo conventions) that `frontend/artifacts/app-debug.apk` is a generated build output produced by the TWA script."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Ensure the manifest-referenced PWA icon assets exist in the generated assets folder at the required sizes, including a maskable icon.",
+      "summary": "Ensure the PWA icon assets referenced by the manifest exist in frontend/public/assets/generated with the required sizes so Bubblewrap init/build does not fail.",
       "acceptanceCriteria": [
-        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192×192.",
-        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512×512.",
-        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512×512 and visually suitable as a maskable icon.",
-        "`frontend/public/manifest.webmanifest` icon `src` entries resolve correctly when the site is deployed (no 404s)."
+        "The following files exist in `frontend/public/assets/generated/` and have the exact pixel dimensions indicated in their filenames: `pwa-icon-192.dim_192x192.png`, `pwa-icon-512.dim_512x512.png`, and `pwa-icon-maskable-512.dim_512x512.png`.",
+        "`frontend/public/manifest.webmanifest` references icons that resolve correctly at runtime (no 404s when fetching the manifest and icon URLs)."
       ],
       "file_operations": [
         {
           "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
           "operation": "create",
-          "description": "Add/ensure the required 192×192 PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-192.dim_192x192.png."
+          "description": "Add/ensure the 192x192 PWA icon asset exists at this exact path for manifest/TWA usage."
         },
         {
           "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
           "operation": "create",
-          "description": "Add/ensure the required 512×512 PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-512.dim_512x512.png."
+          "description": "Add/ensure the 512x512 PWA icon asset exists at this exact path for manifest/TWA usage."
         },
         {
           "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
           "operation": "create",
-          "description": "Add/ensure the required 512×512 maskable PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png (must be visually suitable as a maskable icon)."
+          "description": "Add/ensure the 512x512 maskable PWA icon asset exists at this exact path for manifest/TWA usage."
         },
         {
           "path": "frontend/public/manifest.webmanifest",
           "operation": "modify",
-          "description": "Verify the manifest icon `src` entries correctly reference the generated icon asset paths under frontend/public/assets/generated/ and keep the sizes/purpose aligned (including maskable) so deployed requests do not 404."
+          "description": "Verify the manifest icon entries reference the exact generated asset filenames under `frontend/public/assets/generated/` (192x192, 512x512, and maskable 512x512) so the URLs resolve without 404s at runtime."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Document the exact commands to initialize Bubblewrap from the live manifest and build a debug APK, including the expected APK output path and adb install instructions.",
+      "summary": "Update repo-local English documentation with the exact commands to build the debug APK via scripts and the expected output artifact path.",
       "acceptanceCriteria": [
-        "Documentation clearly states the manifest URL used for TWA init and the command(s) to build the debug APK.",
-        "Documentation includes the expected Bubblewrap output path for the debug APK and a short note on installing it via `adb install`.",
-        "All user-facing documentation text is in English."
+        "Documentation includes the command to run (from repo root) to build the debug APK via the helper script.",
+        "Documentation explicitly states that the expected downloadable output is `frontend/artifacts/app-debug.apk`.",
+        "Documentation mentions required local prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) at a high level or links to the existing guide section that lists them."
       ],
       "file_operations": [
         {
           "path": "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
           "operation": "modify",
-          "description": "Update the existing English guide to include a concise, reproducible section for generating a *debug* APK via the repo scripts (twa-init + twa-build-apk-debug), explicitly stating the live manifest URL used for init, the build command(s), the expected Bubblewrap debug APK output path, the repo-local copied artifact location (if added), and a short `adb install` note."
+          "description": "Add or update a clearly labeled section that documents (1) the exact repo-root command to build the debug APK using the helper script (`cd frontend/scripts && ./twa-build-apk-debug.sh`), (2) that the expected downloadable artifact output is `frontend/artifacts/app-debug.apk`, and (3) high-level prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) or a link/reference to the prerequisites section already in this guide."
         }
       ]
     }

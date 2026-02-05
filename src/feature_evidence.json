@@ -2,28 +2,8 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-produce-an-installable-android-debug-apk-for-the-currently-deployed-pwa-using-the-existing-bubblewrap-trusted-web-activity-twa-workflow-and-expose-the-resulting-app-debug-apk-as-a-downloadable-build-artifact-output-for-the-user",
-      "featureTitle": "Produce an installable Android **debug APK** for the currently deployed PWA using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
-      "files": [
-        "frontend/artifacts/.gitkeep",
-        "frontend/scripts/twa-build-apk-debug.sh",
-        "frontend/scripts/twa-init.sh"
-      ],
-      "components": [
-        "core-infrastructure@1.0.2",
-        "shadcn-ui@1.0.0",
-        "build-template-react@1.0.0",
-        "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
-      ],
-      "testIds": [
-        "REQ-1"
-      ],
-      "confidence": "high"
-    },
-    {
-      "featureId": "feature-add-a-simple-repo-local-english-language-reference-or-update-the-existing-guide-describing-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-state-the-expected-output-path-of-the-apk-so-a-developer-user-can-reproduce-the-downloadable-build",
-      "featureTitle": "Add a simple repo-local, English-language reference (or update the existing guide) describing the exact command(s) to generate the debug APK using the existing scripts, and state the expected output path of the APK so a developer/user can reproduce the downloadable build.",
+      "featureId": "feature-provide-or-update-repo-local-english-documentation-that-states-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-the-expected-output-path-of-the-downloadable-apk-artifact",
+      "featureTitle": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
       "files": [
         "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
       ],
