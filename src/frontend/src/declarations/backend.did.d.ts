@@ -20,21 +20,17 @@ export interface Product {
   'category' : string,
   'price' : number,
 }
+export interface ProductInput {
+  'inStock' : boolean,
+  'name' : string,
+  'description' : string,
+  'imageUrl' : string,
+  'currency' : string,
+  'category' : string,
+  'price' : number,
+}
 export interface _SERVICE {
-  'addProduct' : ActorMethod<
-    [
-      {
-        'inStock' : boolean,
-        'name' : string,
-        'description' : string,
-        'imageUrl' : string,
-        'currency' : string,
-        'category' : string,
-        'price' : number,
-      },
-    ],
-    bigint
-  >,
+  'addProduct' : ActorMethod<[ProductInput], [] | [bigint]>,
   'deleteProduct' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getProductsSortedByPrice' : ActorMethod<[], Array<Product>>,

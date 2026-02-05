@@ -1,43 +1,27 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "E-commerce website project; user now requests converting the website into an Android APK suitable for Play Store publishing.",
+  "summary": "Project involves building/deploying an Android app and generating a downloadable APK build artifact.",
   "architectural_notes": [
-    "Decide APK approach for Play Store (e.g., WebView wrapper via Capacitor/Cordova, or PWA-to-APK) and required Play Store assets/config (package name, signing keystore, privacy policy)."
+    "Android build/deployment pipeline needs to produce a downloadable APK artifact."
   ],
   "known_issues": [],
   "isFixRequest": false,
-  "imageRequirements": "## Required Images\n- App icon, square, high-contrast, brand-safe (pwa-icon-512.dim_512x512.png)\n- App icon, square (pwa-icon-192.dim_192x192.png)\n- App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png)",
+  "imageRequirements": "## Required Images\n- App icon, square (pwa-icon-192.dim_192x192.png) 192x192\n- App icon, square (pwa-icon-512.dim_512x512.png) 512x512\n- App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512",
   "existing_features": [
     {
-      "id": "feature-add-progressive-web-app-pwa-support-so-the-website-can-be-installed-on-android-add-to-home-screen-and-used-as-the-basis-for-a-play-store-trusted-web-activity-twa-this-includes-adding-a-web-app-manifest-appropriate-meta-tags-and-required-icon-assets",
-      "title": "Add Progressive Web App (PWA) support so the website can be installed on Android (Add to Home Screen) and used as the basis for a Play Store Trusted Web Activity (TWA). This includes adding a web app manifest, appropriate meta tags, and required icon assets.",
+      "id": "feature-produce-an-installable-android-debug-apk-for-the-currently-deployed-pwa-using-the-existing-bubblewrap-trusted-web-activity-twa-workflow-and-expose-the-resulting-app-debug-apk-as-a-downloadable-build-artifact-output-for-the-user",
+      "title": "Produce an installable Android **debug APK** for the currently deployed PWA using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
       "reqIds": [
         "REQ-1"
       ],
       "version": 1
     },
     {
-      "id": "feature-add-a-service-worker-and-registration-to-enable-basic-offline-resilience-for-the-app-shell-at-minimum-cache-the-entry-html-js-css-bundles-and-a-simple-offline-fallback-page-response-registration-must-be-done-without-modifying-immutable-files-do-not-edit-frontend-src-main-tsx",
-      "title": "Add a service worker and registration to enable basic offline resilience for the app shell (at minimum: cache the entry HTML, JS/CSS bundles, and a simple offline fallback page/response). Registration must be done without modifying immutable files (do not edit frontend/src/main.tsx).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-an-in-app-user-flow-that-helps-the-user-install-the-app-on-android-e-g-an-install-app-button-shown-when-the-beforeinstallprompt-event-is-available-plus-a-fallback-instruction-tooltip-text-when-it-is-not-available",
-      "title": "Add an in-app user flow that helps the user install the app on Android (e.g., an 'Install App' button shown when the beforeinstallprompt event is available, plus a fallback instruction tooltip/text when it is not available).",
+      "id": "feature-add-a-simple-repo-local-english-language-reference-or-update-the-existing-guide-describing-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-state-the-expected-output-path-of-the-apk-so-a-developer-user-can-reproduce-the-downloadable-build",
+      "title": "Add a simple repo-local, English-language reference (or update the existing guide) describing the exact command(s) to generate the debug APK using the existing scripts, and state the expected output path of the APK so a developer/user can reproduce the downloadable build.",
       "reqIds": [
         "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-provide-a-play-store-publishing-path-by-adding-a-clear-english-step-by-step-guide-inside-the-project-as-a-document-file-in-the-repo-explaining-how-to-produce-an-android-apk-aab-using-a-trusted-web-activity-twa-wrapper-e-g-android-studio-bubblewrap-for-https-bajyasmarketshop-icp0-io-including-required-settings-package-name-versioning-icons-signing-keystore-and-noting-that-google-play-typically-requires-an-aab",
-      "title": "Provide a Play Store publishing path by adding a clear, English step-by-step guide inside the project (as a document file in the repo) explaining how to produce an Android APK/AAB using a Trusted Web Activity (TWA) wrapper (e.g., Android Studio + Bubblewrap) for https://bajyasmarketshop.icp0.io, including required settings (package name, versioning, icons, signing keystore) and noting that Google Play typically requires an AAB.",
-      "reqIds": [
-        "REQ-4"
       ],
       "version": 1
     }
@@ -45,12 +29,20 @@
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Convert the existing website into an Android APK for download and Google Play Store publication",
+      "summary": "Generate a downloadable APK file (Android build artifact)",
       "reqIds": [],
+      "status": "in_progress"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes (192x192, 512x512, 512x512 maskable).",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Make the store installable as an Android-ready PWA and provide Play Store (TWA) packaging steps",
+  "projectName": "Generate a downloadable Android APK (TWA wrapper for the deployed PWA)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

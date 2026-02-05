@@ -25,5 +25,10 @@
   "frontend/public/sw.js": "Service worker implementing network-first caching strategy with offline fallback, precaching essential assets, and automatic cache management.",
   "frontend/src/pwa/registerServiceWorker.ts": "Helper module that safely registers the service worker on page load with error handling and update detection.",
   "frontend/src/components/PwaInstallPrompt.tsx": "Reusable component that detects PWA install availability, shows native install prompt when available, or displays manual installation instructions using Popover.",
-  "frontend/docs/PLAY_STORE_TWA_GUIDE.md": "Comprehensive step-by-step guide for packaging the PWA as a Trusted Web Activity (TWA) and publishing to Google Play Store, including prerequisites, tooling setup, signing, testing, and submission process."
+  "frontend/docs/PLAY_STORE_TWA_GUIDE.md": "Comprehensive step-by-step guide for packaging the PWA as a TWA and publishing to Google Play Store, now including a dedicated section (Step 3) for generating a debug APK with explicit commands, expected output paths (including frontend/artifacts/app-debug.apk), adb install instructions, and clarification that the debug APK wraps the live manifest URL.",
+  "frontend/scripts/twa-init.sh": "Runnable bash script that initializes a Bubblewrap TWA project from the live manifest URL (https://bajyasmarketshop.icp0.io/manifest.webmanifest), explicitly printing the manifest URL during init, with validation and next-step guidance.",
+  "frontend/scripts/twa-build-apk-debug.sh": "Runnable bash script that builds a debug APK using Bubblewrap from the live manifest URL, copies the generated APK to frontend/artifacts/app-debug.apk for easy download, and provides installation instructions.",
+  "frontend/scripts/twa-build-apk-release.sh": "Runnable bash script that builds a signed release APK using Bubblewrap, prompting for keystore path and alias with password handling.",
+  "frontend/scripts/twa-build-aab-release.sh": "Runnable bash script that builds a signed release AAB suitable for Google Play Store submission using Bubblewrap, with keystore configuration prompts and Play Console upload instructions.",
+  "frontend/artifacts/.gitkeep": "Placeholder file to ensure the artifacts directory exists in the repository for storing the generated app-debug.apk file."
 }

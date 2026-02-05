@@ -1,48 +1,51 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T21:55:28.226Z",
-  "summary": "Diff adds PWA manifest + meta tags, a service worker with offline fallback and registration from App.tsx, an in-app install prompt UI, and a Play Store TWA packaging guide. Icon image files themselves are not evidenced in the diff summary, and parts of the Play Store guide are truncated so some AC items cannot be confirmed.",
+  "generatedAt": "2026-02-05T22:10:07.465Z",
+  "summary": "REQ-1 and REQ-3 appear partially/mostly addressed via new Bubblewrap helper scripts and documentation, but the diff does not show any actual generated `app-debug.apk` artifact being produced/checked in, nor any CI/build pipeline that publishes it. REQ-2 (required PWA icon PNG assets under `frontend/public/assets/generated/`) is not evidenced in the diff summary (no icon files shown, and manifest updates are truncated). There are unrelated backend changes implementing product CRUD functionality that were not requested.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Provide the required PWA icon assets and ensure all manifest icon URLs resolve successfully (no 404s).",
-      "reason": "The manifest references three icon files under /assets/generated/, but the diff summary does not show these image assets being added or present, so URL resolvability cannot be verified from the provided evidence.",
+      "id": "REQ-2",
+      "requirement": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes (192x192, 512x512, 512x512 maskable).",
+      "reason": "Diff summary does not show the required PNG icon assets being added under `frontend/public/assets/generated/`, nor a clear, non-truncated manifest update proving the icon `src` entries resolve correctly.",
       "evidence": [
-        "frontend/public/manifest.webmanifest (references /assets/generated/pwa-icon-192.dim_192x192.png, /assets/generated/pwa-icon-512.dim_512x512.png, /assets/generated/pwa-icon-maskable-512.dim_512x512.png)"
+        "frontend-file-summaries.txt (truncated, includes only partial mention of manifest)"
       ]
     },
     {
-      "id": "REQ-4",
-      "requirement": "Include complete step-by-step TWA publishing instructions covering signing keystore generation, how to build APK/AAB (noting Play requires AAB), and what to upload to Play Console.",
-      "reason": "A guide file is added and includes the production URL and a keystore section heading, but the diff content is truncated mid-guide, so it is not possible to confirm inclusion of all required steps (AAB build steps and Play Console upload instructions) from the provided excerpt.",
+      "id": "REQ-1",
+      "requirement": "Produce an installable Android debug APK via Bubblewrap TWA and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
+      "reason": "A local script copies the Bubblewrap output APK into `frontend/artifacts/app-debug.apk`, and a placeholder `frontend/artifacts/.gitkeep` exists, but the diff does not show an actual `app-debug.apk` being generated and made available as a downloadable artifact (e.g., checked in or produced by CI). The requirement is only met as reproducible instructions, not as an actual delivered artifact, based on the diff summary.",
       "evidence": [
-        "frontend/docs/PLAY_STORE_TWA_GUIDE.md (truncated; ends around 'Step 3: Generate a Signing Key')"
+        "frontend/scripts/twa-build-apk-debug.sh",
+        "frontend/artifacts/.gitkeep"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Updates to internal tracking/state files not requested by the BuildRequest (e.g., project_state.json and frontend-file-summaries.txt).",
-      "reason": "The BuildRequest requirements focus on PWA/TWA functionality and documentation; changes to these meta/project summary files are not part of REQ-1..REQ-4.",
+      "description": "Major backend changes implementing a product store (Product type, CRUD methods, seeding, searching, sorting) unrelated to generating an Android TWA/APK.",
+      "reason": "BuildRequest focuses on Bubblewrap/TWA APK generation, PWA icons, and documentation; it explicitly constrains backend and does not request new product-management backend functionality.",
       "evidence": [
-        "project_state.json",
-        "frontend-file-summaries.txt"
+        "backend/main.mo"
+      ]
+    },
+    {
+      "description": "Mentions/commands for building release APK and release AAB in the init script.",
+      "reason": "BuildRequest specifically asks for a debug APK workflow and documentation for generating the debug APK; adding release APK/AAB scripts/commands is not requested in the requirements provided.",
+      "evidence": [
+        "frontend/scripts/twa-init.sh"
       ]
     }
   ],
-  "confidence": 0.63,
+  "confidence": 0.7,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
+    "frontend/artifacts/.gitkeep",
     "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
-    "frontend/index.html",
-    "frontend/public/manifest.webmanifest",
-    "frontend/public/offline.html",
-    "frontend/public/sw.js",
-    "frontend/src/App.tsx",
-    "frontend/src/components/PwaInstallPrompt.tsx",
-    "frontend/src/components/StoreHeader.tsx",
-    "frontend/src/pwa/registerServiceWorker.ts",
+    "frontend/scripts/twa-build-apk-debug.sh",
+    "frontend/scripts/twa-init.sh",
     "project_state.json"
   ]
 }

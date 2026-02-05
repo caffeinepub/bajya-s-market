@@ -1,110 +1,79 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Android-installable PWA setup and TWA packaging guide for bajya's market",
+  "title": "Downloadable debug APK build via existing Bubblewrap TWA scripts + required PWA icon assets",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Add PWA install support via web app manifest, meta tags, and required icon assets.",
+      "summary": "Make the existing Bubblewrap TWA workflow produce a debug APK and surface it as a predictable, downloadable build output named app-debug.apk.",
       "acceptanceCriteria": [
-        "A valid manifest file is available from the app (e.g., /manifest.webmanifest) and includes: name, short_name, start_url, scope, display=standalone, background_color, theme_color, and icon entries (including at least one maskable icon).",
-        "frontend/index.html includes a <link rel=\"manifest\" ...> and sets theme-color meta to match the manifest.",
-        "The PWA installs successfully on Android Chrome via 'Add to Home screen' and launches in standalone mode.",
-        "All icon URLs referenced by the manifest resolve successfully (no 404s)."
+        "A debug APK is generated via Bubblewrap build (TWA) for the live PWA manifest URL.",
+        "The resulting file is available to the user as a downloadable artifact named `app-debug.apk` (or includes clear, explicit instructions on where to retrieve it from the build outputs if artifact download is platform-mediated).",
+        "The APK installs successfully on an Android device/emulator and launches into the PWA without browser UI chrome."
       ],
       "file_operations": [
         {
-          "path": "frontend/index.html",
+          "path": "frontend/scripts/twa-build-apk-debug.sh",
           "operation": "modify",
-          "description": "Add PWA-required head tags: link to /manifest.webmanifest and set the theme-color meta to match the manifest (and any other minimal install-related meta tags needed for Android)."
+          "description": "Update the debug APK build script to (1) confirm it is building the Bubblewrap TWA project created from the live manifest, and (2) copy the generated APK from the Bubblewrap output location into a stable repo-local artifact location (e.g., a dedicated artifacts folder) with the filename `app-debug.apk`, so the build output is easy to retrieve/download."
         },
         {
-          "path": "frontend/public/manifest.webmanifest",
-          "operation": "create",
-          "description": "Create a valid web app manifest defining name, short_name, start_url, scope, display=standalone, background_color, theme_color, and icon entries that reference the required generated icon assets (including at least one maskable icon)."
+          "path": "frontend/scripts/twa-init.sh",
+          "operation": "modify",
+          "description": "Ensure the script clearly uses the live PWA manifest URL for initializing the Bubblewrap TWA project and prints it during init (keeping the manifest URL explicit for reproducible debug APK builds)."
         },
         {
-          "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
+          "path": "frontend/artifacts/.gitkeep",
           "operation": "create",
-          "description": "Add the generated PWA icon asset and ensure the manifest references this exact path so it resolves without 404s."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
-          "operation": "create",
-          "description": "Add the generated PWA icon asset and ensure the manifest references this exact path so it resolves without 404s."
-        },
-        {
-          "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
-          "operation": "create",
-          "description": "Add the generated maskable PWA icon asset (safe-area design) and ensure the manifest includes this icon with purpose=maskable so it resolves without 404s."
+          "description": "Add a tracked placeholder so the repo has a consistent, documented location for the generated debug APK artifact (the actual APK should be produced by the build script and placed here as `app-debug.apk`)."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Add a service worker with basic app-shell caching and offline fallback; register it without editing immutable files.",
+      "summary": "Ensure the manifest-referenced PWA icon assets exist in the generated assets folder at the required sizes, including a maskable icon.",
       "acceptanceCriteria": [
-        "A service worker file exists (e.g., /sw.js) and is registered from a non-immutable frontend source file (e.g., from frontend/src/App.tsx or another editable component).",
-        "With the site loaded once, switching the browser to offline still allows the app shell to load (or shows a clear offline fallback UI) instead of a default network error.",
-        "Service worker registration does not break normal browsing (no infinite reload loops; no console errors on first load)."
+        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192×192.",
+        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512×512.",
+        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512×512 and visually suitable as a maskable icon.",
+        "`frontend/public/manifest.webmanifest` icon `src` entries resolve correctly when the site is deployed (no 404s)."
       ],
       "file_operations": [
         {
-          "path": "frontend/public/offline.html",
+          "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
           "operation": "create",
-          "description": "Create a simple offline fallback page that can be served when navigation requests fail while offline."
+          "description": "Add/ensure the required 192×192 PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-192.dim_192x192.png."
         },
         {
-          "path": "frontend/public/sw.js",
+          "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
           "operation": "create",
-          "description": "Create a service worker that pre-caches the app shell basics (entry HTML and offline fallback) and implements an offline-safe strategy for navigations and static assets (avoid reload loops)."
+          "description": "Add/ensure the required 512×512 PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-512.dim_512x512.png."
         },
         {
-          "path": "frontend/src/pwa/registerServiceWorker.ts",
+          "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
           "operation": "create",
-          "description": "Add a small registration helper that registers /sw.js safely (feature-detect, log errors, avoid re-register loops) so registration can be invoked from editable React code."
+          "description": "Add/ensure the required 512×512 maskable PWA icon asset exists at exactly this path: frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png (must be visually suitable as a maskable icon)."
         },
         {
-          "path": "frontend/src/App.tsx",
+          "path": "frontend/public/manifest.webmanifest",
           "operation": "modify",
-          "description": "Register the service worker from this editable file (do not modify frontend/src/main.tsx) by calling the new registration helper during app startup."
+          "description": "Verify the manifest icon `src` entries correctly reference the generated icon asset paths under frontend/public/assets/generated/ and keep the sizes/purpose aligned (including maskable) so deployed requests do not 404."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Add an in-app Android install prompt flow with an 'Install App' button and fallback instructions when unavailable.",
+      "summary": "Document the exact commands to initialize Bubblewrap from the live manifest and build a debug APK, including the expected APK output path and adb install instructions.",
       "acceptanceCriteria": [
-        "When the PWA install prompt is available, an 'Install App' UI element is shown and triggers the native install prompt.",
-        "When the install prompt is not available, the UI provides clear guidance (English text) explaining how to install via the browser menu.",
-        "The install UI is accessible on both desktop and mobile layouts (no layout overlap with the existing header/navigation)."
-      ],
-      "file_operations": [
-        {
-          "path": "frontend/src/components/PwaInstallPrompt.tsx",
-          "operation": "create",
-          "description": "Create a reusable install prompt component that listens for beforeinstallprompt, conditionally shows an 'Install App' button, triggers the native prompt when available, and otherwise shows English fallback instructions. Use shadcn-ui components (e.g., Button and optionally Tooltip/Popover) for consistent UI. Verify the component's usage instructions before implementing."
-        },
-        {
-          "path": "frontend/src/components/StoreHeader.tsx",
-          "operation": "modify",
-          "description": "Wire the PwaInstallPrompt component into the existing header for both desktop and mobile navigation areas so it remains accessible without overlapping existing header/navigation. Verify the component's usage instructions before implementing."
-        }
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "summary": "Add an in-repo English guide describing how to package and publish the site as an Android TWA (APK/AAB) for Play Store.",
-      "acceptanceCriteria": [
-        "A documentation file is added to the repository that includes: the production URL (https://bajyasmarketshop.icp0.io), required Android package identifier guidance, how to generate a signing key, how to build an APK/AAB, and what to upload to Play Console.",
-        "The guide explicitly states the limitation that this project itself does not directly output an APK from the IC deployment, and that packaging is done externally using TWA tooling.",
-        "The guide references the PWA manifest and icons added in REQ-1 as prerequisites."
+        "Documentation clearly states the manifest URL used for TWA init and the command(s) to build the debug APK.",
+        "Documentation includes the expected Bubblewrap output path for the debug APK and a short note on installing it via `adb install`.",
+        "All user-facing documentation text is in English."
       ],
       "file_operations": [
         {
           "path": "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
-          "operation": "create",
-          "description": "Add a step-by-step English TWA packaging and Play Store publishing guide for https://bajyasmarketshop.icp0.io, including package name guidance, versioning notes, signing keystore generation, building APK/AAB with Bubblewrap/Android Studio, what to upload to Play Console (note AAB), and prerequisites referencing frontend/public/manifest.webmanifest and the icon assets from REQ-1."
+          "operation": "modify",
+          "description": "Update the existing English guide to include a concise, reproducible section for generating a *debug* APK via the repo scripts (twa-init + twa-build-apk-debug), explicitly stating the live manifest URL used for init, the build command(s), the expected Bubblewrap debug APK output path, the repo-local copied artifact location (if added), and a short `adb install` note."
         }
       ]
     }

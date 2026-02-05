@@ -89,6 +89,15 @@ export class ExternalBlob {
         return this;
     }
 }
+export interface ProductInput {
+    inStock: boolean;
+    name: string;
+    description: string;
+    imageUrl: string;
+    currency: string;
+    category: string;
+    price: number;
+}
 export interface Product {
     id: bigint;
     inStock: boolean;
@@ -100,15 +109,7 @@ export interface Product {
     price: number;
 }
 export interface backendInterface {
-    addProduct(productInput: {
-        inStock: boolean;
-        name: string;
-        description: string;
-        imageUrl: string;
-        currency: string;
-        category: string;
-        price: number;
-    }): Promise<bigint>;
+    addProduct(productInput: ProductInput): Promise<bigint | null>;
     deleteProduct(id: bigint): Promise<void>;
     getAllProducts(): Promise<Array<Product>>;
     getProductsSortedByPrice(): Promise<Array<Product>>;
@@ -119,26 +120,18 @@ export interface backendInterface {
 }
 export class Backend implements backendInterface {
     constructor(private actor: ActorSubclass<_SERVICE>, private _uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, private _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, private processError?: (error: unknown) => never){}
-    async addProduct(arg0: {
-        inStock: boolean;
-        name: string;
-        description: string;
-        imageUrl: string;
-        currency: string;
-        category: string;
-        price: number;
-    }): Promise<bigint> {
+    async addProduct(arg0: ProductInput): Promise<bigint | null> {
         if (this.processError) {
             try {
                 const result = await this.actor.addProduct(arg0);
-                return result;
+                return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
             } catch (e) {
                 this.processError(e);
                 throw new Error("unreachable");
             }
         } else {
             const result = await this.actor.addProduct(arg0);
-            return result;
+            return from_candid_opt_n1(this._uploadFile, this._downloadFile, result);
         }
     }
     async deleteProduct(arg0: bigint): Promise<void> {
@@ -239,6 +232,9 @@ export class Backend implements backendInterface {
             return result;
         }
     }
+}
+function from_candid_opt_n1(_uploadFile: (file: ExternalBlob) => Promise<Uint8Array>, _downloadFile: (file: Uint8Array) => Promise<ExternalBlob>, value: [] | [bigint]): bigint | null {
+    return value.length === 0 ? null : value[0];
 }
 export interface CreateActorOptions {
     agent?: Agent;

@@ -8,6 +8,15 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const ProductInput = IDL.Record({
+  'inStock' : IDL.Bool,
+  'name' : IDL.Text,
+  'description' : IDL.Text,
+  'imageUrl' : IDL.Text,
+  'currency' : IDL.Text,
+  'category' : IDL.Text,
+  'price' : IDL.Float64,
+});
 export const Product = IDL.Record({
   'id' : IDL.Nat,
   'inStock' : IDL.Bool,
@@ -20,21 +29,7 @@ export const Product = IDL.Record({
 });
 
 export const idlService = IDL.Service({
-  'addProduct' : IDL.Func(
-      [
-        IDL.Record({
-          'inStock' : IDL.Bool,
-          'name' : IDL.Text,
-          'description' : IDL.Text,
-          'imageUrl' : IDL.Text,
-          'currency' : IDL.Text,
-          'category' : IDL.Text,
-          'price' : IDL.Float64,
-        }),
-      ],
-      [IDL.Nat],
-      [],
-    ),
+  'addProduct' : IDL.Func([ProductInput], [IDL.Opt(IDL.Nat)], []),
   'deleteProduct' : IDL.Func([IDL.Nat], [], []),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getProductsSortedByPrice' : IDL.Func([], [IDL.Vec(Product)], ['query']),
@@ -47,6 +42,15 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const ProductInput = IDL.Record({
+    'inStock' : IDL.Bool,
+    'name' : IDL.Text,
+    'description' : IDL.Text,
+    'imageUrl' : IDL.Text,
+    'currency' : IDL.Text,
+    'category' : IDL.Text,
+    'price' : IDL.Float64,
+  });
   const Product = IDL.Record({
     'id' : IDL.Nat,
     'inStock' : IDL.Bool,
@@ -59,21 +63,7 @@ export const idlFactory = ({ IDL }) => {
   });
   
   return IDL.Service({
-    'addProduct' : IDL.Func(
-        [
-          IDL.Record({
-            'inStock' : IDL.Bool,
-            'name' : IDL.Text,
-            'description' : IDL.Text,
-            'imageUrl' : IDL.Text,
-            'currency' : IDL.Text,
-            'category' : IDL.Text,
-            'price' : IDL.Float64,
-          }),
-        ],
-        [IDL.Nat],
-        [],
-      ),
+    'addProduct' : IDL.Func([ProductInput], [IDL.Opt(IDL.Nat)], []),
     'deleteProduct' : IDL.Func([IDL.Nat], [], []),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
     'getProductsSortedByPrice' : IDL.Func([], [IDL.Vec(Product)], ['query']),

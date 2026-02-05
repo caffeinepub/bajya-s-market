@@ -1,98 +1,90 @@
 {
   "kind": "build_request",
-  "title": "Make the store installable as an Android-ready PWA and provide Play Store (TWA) packaging steps",
+  "title": "Generate a downloadable Android APK (TWA wrapper for the deployed PWA)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Add Progressive Web App (PWA) support so the website can be installed on Android (Add to Home Screen) and used as the basis for a Play Store Trusted Web Activity (TWA). This includes adding a web app manifest, appropriate meta tags, and required icon assets.",
-      "target": "frontend",
+      "text": "Produce an installable Android **debug APK** for the currently deployed PWA using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and expose the resulting `app-debug.apk` as a downloadable build artifact/output for the user.",
+      "target": "unknown",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-4"
         ],
         "quotes": [
-          "Ok ab is website ko apk file me convert kardo jise me download karke play store par publish kar saku"
+          "Yes genrate downloadable apk file"
         ]
       },
       "acceptanceCriteria": [
-        "A valid manifest file is available from the app (e.g., /manifest.webmanifest) and includes: name, short_name, start_url, scope, display=standalone, background_color, theme_color, and icon entries (including at least one maskable icon).",
-        "frontend/index.html includes a <link rel=\"manifest\" ...> and sets theme-color meta to match the manifest.",
-        "The PWA installs successfully on Android Chrome via 'Add to Home screen' and launches in standalone mode.",
-        "All icon URLs referenced by the manifest resolve successfully (no 404s)."
+        "A debug APK is generated via Bubblewrap build (TWA) for the live PWA manifest URL.",
+        "The resulting file is available to the user as a downloadable artifact named `app-debug.apk` (or includes clear, explicit instructions on where to retrieve it from the build outputs if artifact download is platform-mediated).",
+        "The APK installs successfully on an Android device/emulator and launches into the PWA without browser UI chrome."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Add a service worker and registration to enable basic offline resilience for the app shell (at minimum: cache the entry HTML, JS/CSS bundles, and a simple offline fallback page/response). Registration must be done without modifying immutable files (do not edit frontend/src/main.tsx).",
+      "text": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes (192x192, 512x512, 512x512 maskable).",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-4"
         ],
         "quotes": [
-          "Ok ab is website ko apk file me convert kardo jise me download karke play store par publish kar saku"
+          "Yes genrate downloadable apk file"
         ]
       },
       "acceptanceCriteria": [
-        "A service worker file exists (e.g., /sw.js) and is registered from a non-immutable frontend source file (e.g., from frontend/src/App.tsx or another editable component).",
-        "With the site loaded once, switching the browser to offline still allows the app shell to load (or shows a clear offline fallback UI) instead of a default network error.",
-        "Service worker registration does not break normal browsing (no infinite reload loops; no console errors on first load)."
+        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192×192.",
+        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512×512.",
+        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512×512 and visually suitable as a maskable icon.",
+        "`frontend/public/manifest.webmanifest` icon `src` entries resolve correctly when the site is deployed (no 404s)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Add an in-app user flow that helps the user install the app on Android (e.g., an 'Install App' button shown when the beforeinstallprompt event is available, plus a fallback instruction tooltip/text when it is not available).",
+      "text": "Add a simple repo-local, English-language reference (or update the existing guide) describing the exact command(s) to generate the debug APK using the existing scripts, and state the expected output path of the APK so a developer/user can reproduce the downloadable build.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-user-1"
+          "msg-4"
         ],
         "quotes": [
-          "Ok ab is website ko apk file me convert kardo jise me download karke play store par publish kar saku"
+          "Yes genrate downloadable apk file"
         ]
       },
       "acceptanceCriteria": [
-        "When the PWA install prompt is available, an 'Install App' UI element is shown and triggers the native install prompt.",
-        "When the install prompt is not available, the UI provides clear guidance (English text) explaining how to install via the browser menu.",
-        "The install UI is accessible on both desktop and mobile layouts (no layout overlap with the existing header/navigation)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Provide a Play Store publishing path by adding a clear, English step-by-step guide inside the project (as a document file in the repo) explaining how to produce an Android APK/AAB using a Trusted Web Activity (TWA) wrapper (e.g., Android Studio + Bubblewrap) for https://bajyasmarketshop.icp0.io, including required settings (package name, versioning, icons, signing keystore) and noting that Google Play typically requires an AAB.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "msg-user-1"
-        ],
-        "quotes": [
-          "Ok ab is website ko apk file me convert kardo jise me download karke play store par publish kar saku"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A documentation file is added to the repository that includes: the production URL (https://bajyasmarketshop.icp0.io), required Android package identifier guidance, how to generate a signing key, how to build an APK/AAB, and what to upload to Play Console.",
-        "The guide explicitly states the limitation that this project itself does not directly output an APK from the IC deployment, and that packaging is done externally using TWA tooling.",
-        "The guide references the PWA manifest and icons added in REQ-1 as prerequisites."
+        "Documentation clearly states the manifest URL used for TWA init and the command(s) to build the debug APK.",
+        "Documentation includes the expected Bubblewrap output path for the debug APK and a short note on installing it via `adb install`.",
+        "All user-facing documentation text is in English."
       ]
     }
   ],
   "constraints": [
-    "Do not edit any frontend files under the immutable paths listed in SYSTEM_CONTEXT (including frontend/src/main.tsx and frontend/src/hooks/* and frontend/src/components/ui).",
-    "Backend must remain a single Motoko actor in backend/main.mo; no additional backend services.",
-    "Do not introduce third-party authentication; keep Internet Identity as-is."
+    "Backend must remain a single Motoko actor in `backend/main.mo` (no additional backend services).",
+    "Do not edit files under `frontend/src/components/ui` or the immutable hook/bootstrap paths listed in SYSTEM_CONTEXT.",
+    "Do not introduce external databases or non-Internet-Identity authentication."
   ],
   "nonGoals": [
-    "Implementing native Android features (push notifications, native payments, geolocation, background sync beyond basic caching).",
-    "Building and attaching a real APK/AAB artifact directly from this IC project’s deployment pipeline.",
-    "Adding non-Internet-Identity login providers (Google/Facebook/etc.)."
+    "Implementing a native Android app (non-TWA) with custom native screens.",
+    "Adding mobile push notifications, deep native integrations, or third-party auth providers.",
+    "Publishing to Google Play Store (AAB submission) unless separately requested."
   ],
   "imageRequirements": {
     "required": [
-      "App icon, square, high-contrast, brand-safe (pwa-icon-512.dim_512x512.png)",
-      "App icon, square (pwa-icon-192.dim_192x192.png)",
-      "App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png)"
+      "App icon, square (pwa-icon-192.dim_192x192.png) 192x192",
+      "App icon, square (pwa-icon-512.dim_512x512.png) 512x512",
+      "App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512"
     ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

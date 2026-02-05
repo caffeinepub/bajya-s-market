@@ -7,6 +7,15 @@ export interface None {
     __kind__: "None";
 }
 export type Option<T> = Some<T> | None;
+export interface ProductInput {
+    inStock: boolean;
+    name: string;
+    description: string;
+    imageUrl: string;
+    currency: string;
+    category: string;
+    price: number;
+}
 export interface Product {
     id: bigint;
     inStock: boolean;
@@ -18,15 +27,7 @@ export interface Product {
     price: number;
 }
 export interface backendInterface {
-    addProduct(productInput: {
-        inStock: boolean;
-        name: string;
-        description: string;
-        imageUrl: string;
-        currency: string;
-        category: string;
-        price: number;
-    }): Promise<bigint>;
+    addProduct(productInput: ProductInput): Promise<bigint | null>;
     deleteProduct(id: bigint): Promise<void>;
     getAllProducts(): Promise<Array<Product>>;
     getProductsSortedByPrice(): Promise<Array<Product>>;
