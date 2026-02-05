@@ -4,11 +4,14 @@ import HomePage from './pages/HomePage';
 import ProductsPage from './pages/ProductsPage';
 import ProductDetailsPage from './pages/ProductDetailsPage';
 import AdminPage from './pages/AdminPage';
+import NotFoundPage from './pages/NotFoundPage';
 import StoreLayout from './components/StoreLayout';
 import { registerServiceWorker } from './pwa/registerServiceWorker';
+import { runRuntimeSmokeCheck } from './utils/runtimeSmokeCheck';
 
 const rootRoute = createRootRoute({
   component: StoreLayout,
+  notFoundComponent: NotFoundPage,
 });
 
 const indexRoute = createRoute({
@@ -37,7 +40,10 @@ const adminRoute = createRoute({
 
 const routeTree = rootRoute.addChildren([indexRoute, productsRoute, productDetailsRoute, adminRoute]);
 
-const router = createRouter({ routeTree });
+const router = createRouter({ 
+  routeTree,
+  defaultNotFoundComponent: NotFoundPage,
+});
 
 declare module '@tanstack/react-router' {
   interface Register {
@@ -47,7 +53,13 @@ declare module '@tanstack/react-router' {
 
 export default function App() {
   useEffect(() => {
+    // Register service worker for PWA functionality
     registerServiceWorker();
+    
+    // Run non-blocking smoke check to verify backend connectivity
+    runRuntimeSmokeCheck().catch((error) => {
+      console.warn('[App] Smoke check failed:', error);
+    });
   }, []);
 
   return <RouterProvider router={router} />;

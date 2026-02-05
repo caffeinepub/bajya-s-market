@@ -1,71 +1,76 @@
 {
   "kind": "build_request",
-  "title": "Package the current PWA into a downloadable Android APK artifact (TWA)",
+  "title": "Push current deployment live to production (fix go-live issues and verify live PWA)",
   "priority": "normal",
   "requirements": [
     {
       "id": "REQ-1",
-      "text": "Generate an installable Android debug APK that wraps the live PWA at https://bajyasmarketshop.icp0.io using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and output the resulting APK as a downloadable build artifact at `frontend/artifacts/app-debug.apk`.",
-      "target": "frontend",
+      "text": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-1"
         ],
         "quotes": [
-          "Wrap it into downloadable apk"
+          "Yes pushing it to live production"
         ]
       },
       "acceptanceCriteria": [
-        "Running `cd frontend/scripts && ./twa-build-apk-debug.sh` successfully builds a debug APK using Bubblewrap.",
-        "After a successful build, the file `frontend/artifacts/app-debug.apk` exists and is the latest build output (copied from Bubblewrap’s `app/build/outputs/apk/debug/app-debug.apk`).",
-        "The produced APK installs on an Android device/emulator and launches into the wrapped PWA domain (`bajyasmarketshop.icp0.io`)."
+        "A production deployment (go-live) completes successfully without errors.",
+        "No regression in core functionality (product list fetch, product details route, admin page access gating) after the fix.",
+        "If backend state schema changes are required, add a conditional Motoko migration in `backend/migration.mo`; otherwise do not change migration behavior."
       ]
     },
     {
       "id": "REQ-2",
-      "text": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes, so TWA initialization/build does not fail due to missing icons.",
+      "text": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
       "target": "frontend",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-1"
         ],
         "quotes": [
-          "Wrap it into downloadable apk"
+          "Yes pushing it to live production"
         ]
       },
       "acceptanceCriteria": [
-        "The following files exist in `frontend/public/assets/generated/` and have the exact pixel dimensions indicated in their filenames: `pwa-icon-192.dim_192x192.png`, `pwa-icon-512.dim_512x512.png`, and `pwa-icon-maskable-512.dim_512x512.png`.",
-        "`frontend/public/manifest.webmanifest` references icons that resolve correctly at runtime (no 404s when fetching the manifest and icon URLs)."
+        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192x192.",
+        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512x512.",
+        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512x512 and suitable for maskable usage (safe-area composition).",
+        "The manifest icons load without 404s when the app is served (no missing icon requests in browser devtools network panel)."
       ]
     },
     {
       "id": "REQ-3",
-      "text": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
-      "target": "frontend",
+      "text": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
+      "target": "both",
       "source": {
         "messageIds": [
-          "msg-4"
+          "recent-1"
         ],
         "quotes": [
-          "Wrap it into downloadable apk"
+          "Yes pushing it to live production"
         ]
       },
       "acceptanceCriteria": [
-        "Documentation includes the command to run (from repo root) to build the debug APK via the helper script.",
-        "Documentation explicitly states that the expected downloadable output is `frontend/artifacts/app-debug.apk`.",
-        "Documentation mentions required local prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) at a high level or links to the existing guide section that lists them."
+        "Visiting https://bajyasmarketshop.icp0.io loads the app successfully.",
+        "Navigating to the Home page, Products page, and a Product Details page works without routing errors.",
+        "The product list loads successfully from the backend (no uncaught exceptions; user-facing errors are handled).",
+        "The 404 / Not Found route renders when visiting an unknown path.",
+        "Service worker registers without throwing runtime errors in console (warnings are acceptable)."
       ]
     }
   ],
   "constraints": [
-    "Do not modify files under `frontend/src/components/ui` (read-only).",
-    "Do not modify immutable hook/bootstrap files: `frontend/src/hooks/useInternetIdentity.ts`, `frontend/src/hooks/useInternetIdentity.tsx`, `frontend/src/hooks/useActor.ts`, `frontend/src/main.tsx`.",
-    "Keep backend architecture as a single Motoko actor; no additional backend services."
+    "Backend must remain a single Motoko actor with all logic in `backend/main.mo`; use `backend/migration.mo` only if existing stable state requires changes.",
+    "Do not edit any frontend files under `frontend/src/components/ui` or any paths listed as immutable in SYSTEM_CONTEXT.",
+    "Keep user-facing text in English."
   ],
   "nonGoals": [
-    "Publishing the app to Google Play Store (AAB upload, store listing, signing key management) beyond providing local build instructions/scripts.",
-    "Implementing any native Android features beyond a TWA wrapper for the existing PWA.",
-    "Adding any non-Internet-Computer authentication providers or external databases/services."
+    "Adding new product-store features beyond what is required to fix deployment/go-live.",
+    "Introducing third-party auth providers (only Internet Identity is supported).",
+    "Adding external databases or non-Motoko backend services.",
+    "Publishing to Google Play / TWA packaging (out of scope unless explicitly requested)."
   ],
   "imageRequirements": {
     "required": [

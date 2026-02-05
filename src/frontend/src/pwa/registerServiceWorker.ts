@@ -4,7 +4,7 @@ export function registerServiceWorker() {
       navigator.serviceWorker
         .register('/sw.js')
         .then((registration) => {
-          console.log('Service Worker registered successfully:', registration.scope);
+          console.log('[SW] Service Worker registered successfully:', registration.scope);
           
           // Check for updates periodically
           registration.addEventListener('updatefound', () => {
@@ -12,15 +12,18 @@ export function registerServiceWorker() {
             if (newWorker) {
               newWorker.addEventListener('statechange', () => {
                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('New service worker available. Refresh to update.');
+                  console.log('[SW] New service worker available. Refresh to update.');
                 }
               });
             }
           });
         })
         .catch((error) => {
-          console.error('Service Worker registration failed:', error);
+          // Log error but don't throw - service worker is optional enhancement
+          console.warn('[SW] Service Worker registration failed:', error);
         });
     });
+  } else {
+    console.log('[SW] Service Workers not supported in this browser');
   }
 }

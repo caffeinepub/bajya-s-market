@@ -1,28 +1,32 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:21:11.011Z",
+  "generatedAt": "2026-02-05T22:37:12.399Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
     "total": 3,
-    "implemented": 1,
+    "implemented": 2,
     "items": [
       {
         "id": "REQ-1",
-        "summary": "Generate an installable Android debug APK that wraps the live PWA at https://bajyasmarketshop.icp0.io using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and output the resulting APK as a downloadable build artifact at `frontend/artifacts/app-debug.apk`.",
-        "status": "missing",
+        "summary": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+        "status": "implemented",
         "plannedFiles": [
-          "frontend/scripts/twa-build-apk-debug.sh",
-          "frontend/artifacts/.gitkeep"
+          "frontend/src/config/index.ts",
+          "frontend/src/hooks/useActor.ts",
+          "frontend/src/utils/runtimeSmokeCheck.ts"
         ],
-        "matchedFiles": []
+        "matchedFiles": [
+          "frontend/src/config/index.ts",
+          "frontend/src/hooks/useActor.ts"
+        ]
       },
       {
         "id": "REQ-2",
-        "summary": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes, so TWA initialization/build does not fail due to missing icons.",
+        "summary": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
         "status": "missing",
         "plannedFiles": [
           "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
@@ -34,23 +38,39 @@
       },
       {
         "id": "REQ-3",
-        "summary": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
+        "summary": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
         "status": "implemented",
         "plannedFiles": [
-          "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+          "frontend/src/App.tsx",
+          "frontend/src/pwa/registerServiceWorker.ts",
+          "frontend/src/utils/runtimeSmokeCheck.ts"
         ],
         "matchedFiles": [
-          "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+          "frontend/src/App.tsx",
+          "frontend/src/pwa/registerServiceWorker.ts"
         ]
       }
     ]
   },
   "changedFiles": [
+    "backend/authorization/MixinAuthorization.mo",
+    "backend/authorization/access-control.mo",
+    "backend/main.mo",
     "build-request.json",
+    "caffeine.lock.json",
     "feature_evidence.json",
     "frontend-file-summaries.txt",
     "frontend-implementation-plan.json",
-    "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.d.ts",
+    "frontend/src/backend.did.ts",
+    "frontend/src/backend.ts",
+    "frontend/src/config/index.ts",
+    "frontend/src/declarations/backend.did.d.ts",
+    "frontend/src/declarations/backend.did.js",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/pwa/registerServiceWorker.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

@@ -2,17 +2,39 @@
   "kind": "feature_evidence_report",
   "features": [
     {
-      "featureId": "feature-provide-or-update-repo-local-english-documentation-that-states-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-the-expected-output-path-of-the-downloadable-apk-artifact",
-      "featureTitle": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
+      "featureId": "feature-identify-and-fix-the-root-cause-of-the-current-go-live-production-deployment-failure-previously-encountered-while-launching-version-8-so-that-the-app-can-be-successfully-promoted-from-draft-to-live-production",
+      "featureTitle": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
       "files": [
-        "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+        "frontend/src/config/index.ts",
+        "frontend/src/hooks/useActor.ts"
       ],
       "components": [
         "core-infrastructure@1.0.2",
         "shadcn-ui@1.0.0",
         "build-template-react@1.0.0",
         "initial-app@1.0.0",
-        "github-export-icp-cli@1.0.0"
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-after-the-deployment-fix-verify-the-application-is-live-and-usable-at-the-expected-live-pwa-origin-https-bajyasmarketshop-icp0-io-including-basic-smoke-checks-for-routing-and-product-loading",
+      "featureTitle": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
+      "files": [
+        "frontend/src/App.tsx",
+        "frontend/src/pwa/registerServiceWorker.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
       ],
       "testIds": [
         "REQ-3"

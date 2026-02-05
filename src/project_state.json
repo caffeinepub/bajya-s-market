@@ -1,15 +1,25 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Package the current build into a downloadable Android APK.",
-  "architectural_notes": [],
+  "summary": "New project",
+  "architectural_notes": [
+    "User approved pushing Draft Version 9 live to production (trigger production build/deploy)."
+  ],
   "known_issues": [],
   "isFixRequest": false,
   "imageRequirements": "## Required Images\n- App icon, square (pwa-icon-192.dim_192x192.png) 192x192\n- App icon, square (pwa-icon-512.dim_512x512.png) 512x512\n- App icon, maskable safe-area design (pwa-icon-maskable-512.dim_512x512.png) 512x512",
   "existing_features": [
     {
-      "id": "feature-provide-or-update-repo-local-english-documentation-that-states-the-exact-command-s-to-generate-the-debug-apk-using-the-existing-scripts-and-the-expected-output-path-of-the-downloadable-apk-artifact",
-      "title": "Provide or update repo-local English documentation that states the exact command(s) to generate the debug APK using the existing scripts and the expected output path of the downloadable APK artifact.",
+      "id": "feature-identify-and-fix-the-root-cause-of-the-current-go-live-production-deployment-failure-previously-encountered-while-launching-version-8-so-that-the-app-can-be-successfully-promoted-from-draft-to-live-production",
+      "title": "Identify and fix the root cause of the current go-live/production deployment failure (previously encountered while launching Version 8) so that the app can be successfully promoted from draft to live production.",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-after-the-deployment-fix-verify-the-application-is-live-and-usable-at-the-expected-live-pwa-origin-https-bajyasmarketshop-icp0-io-including-basic-smoke-checks-for-routing-and-product-loading",
+      "title": "After the deployment fix, verify the application is live and usable at the expected live PWA origin https://bajyasmarketshop.icp0.io, including basic smoke checks for routing and product loading.",
       "reqIds": [
         "REQ-3"
       ],
@@ -18,29 +28,15 @@
   ],
   "new_feature_requests": [
     {
-      "id": "AR-1",
-      "summary": "Generate and provide a downloadable Android APK for the current version/build.",
-      "reqIds": [],
-      "status": "pending"
-    },
-    {
       "id": "AR-2",
-      "summary": "Generate an installable Android debug APK that wraps the live PWA at https://bajyasmarketshop.icp0.io using the existing Bubblewrap Trusted Web Activity (TWA) workflow, and output the resulting APK as a downloadable build artifact at `frontend/artifacts/app-debug.apk`.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "status": "pending"
-    },
-    {
-      "id": "AR-3",
-      "summary": "Ensure the PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` and match the required sizes, so TWA initialization/build does not fail due to missing icons.",
+      "summary": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
       "reqIds": [
         "REQ-2"
       ],
       "status": "pending"
     }
   ],
-  "projectName": "Package the current PWA into a downloadable Android APK artifact (TWA)",
+  "projectName": "Push current deployment live to production (fix go-live issues and verify live PWA)",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

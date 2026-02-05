@@ -1,63 +1,61 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T22:21:11.009Z",
-  "summary": "The diff does not show implementation of the requested TWA debug APK build workflow, does not show the required generated PWA icon assets being added, and does not clearly provide the required repo-local instructions for producing `frontend/artifacts/app-debug.apk`. It also appears to include unrelated frontend/UI changes and even touches an explicitly immutable file (`frontend/src/main.tsx`).",
+  "generatedAt": "2026-02-05T22:37:12.397Z",
+  "summary": "Diff implements several frontend/runtime changes (config loading from /env.json, actor creation changes, routing/not-found setup, service worker registration, URL param utilities) and modifies backend/main.mo access-control-related logic. However, required PWA icon assets are not evidenced, and deployment/live verification cannot be confirmed from code changes alone.",
   "missing_requirements": [
     {
-      "id": "REQ-1",
-      "requirement": "Provide a working Bubblewrap-based script `frontend/scripts/twa-build-apk-debug.sh` that builds a debug TWA APK wrapping https://bajyasmarketshop.icp0.io and copies the output to `frontend/artifacts/app-debug.apk`.",
-      "reason": "The diff summary shows no added/modified build script under `frontend/scripts/` and no evidence of producing/copying an APK to `frontend/artifacts/app-debug.apk`. Only documentation and summary/state files are shown as modified.",
-      "evidence": [
-        "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
-        "frontend-file-summaries.txt"
-      ]
-    },
-    {
       "id": "REQ-2",
-      "requirement": "Add the required PWA icon assets under `frontend/public/assets/generated/` (192x192, 512x512, maskable 512x512) and ensure `frontend/public/manifest.webmanifest` references them correctly.",
-      "reason": "No new files are shown as added, so the required PNG assets are not evidenced as present in `frontend/public/assets/generated/`. The `frontend-file-summaries.txt` is truncated around `frontend/public/manifes...`, so there is no reliable evidence the manifest was updated to reference the required assets.",
+      "requirement": "Ensure all PWA icon assets referenced by `frontend/public/manifest.webmanifest` exist under `frontend/public/assets/generated/` with the exact filenames and pixel dimensions required by the manifest.",
+      "reason": "Diff shows no added/modified PNG assets under `frontend/public/assets/generated/`, and no manifest changes are shown. Therefore existence and dimensions of the required icon files cannot be confirmed.",
       "evidence": [
-        "<file-diff>: Added: 0",
-        "frontend-file-summaries.txt"
+        "File diff summary: no entries under frontend/public/assets/generated/",
+        "File diff summary: no entry for frontend/public/manifest.webmanifest"
       ]
     },
     {
       "id": "REQ-3",
-      "requirement": "Provide/update English documentation with the exact command(s) (from repo root) to build the debug APK via the helper script and explicitly state the output path `frontend/artifacts/app-debug.apk`, plus prerequisites (or link).",
-      "reason": "`frontend/docs/PLAY_STORE_TWA_GUIDE.md` was modified, but the visible portion focuses on Play Store publishing and includes a statement that the project does not directly generate APK/AAB files, which conflicts with the requirement to provide local debug APK build instructions/output path. Due to truncation, the required explicit command/output-path statements are not evidenced.",
+      "requirement": "After the deployment fix, verify the application is live and usable at https://bajyasmarketshop.icp0.io, including smoke checks for routing and product loading.",
+      "reason": "The diff adds code that could help (service worker registration and a runtime smoke check call), but it does not provide evidence of an actual verification at the specified live origin (that is an operational action not shown in code).",
       "evidence": [
-        "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+        "frontend/src/App.tsx (calls runRuntimeSmokeCheck and registers SW)",
+        "frontend/src/pwa/registerServiceWorker.ts"
       ]
     }
   ],
   "hallucinated_features": [
     {
-      "description": "Changes to application UI/pages/admin features and general frontend refactors unrelated to TWA/APK packaging.",
-      "reason": "The BuildRequest is specifically about packaging the existing PWA into an Android APK artifact and ensuring icons/docs. The diff summary indicates many unrelated app/UI/admin/product-management changes.",
+      "description": "Runtime configuration loader that fetches /env.json and creates an actor using @icp-sdk/core/agent HttpAgent with fallback defaults.",
+      "reason": "BuildRequest does not request introducing a new env.json-based runtime config system; it may be part of a deployment fix, but it is not explicitly specified as a requirement.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/config/index.ts"
       ]
     },
     {
-      "description": "Modifications to an explicitly immutable file: `frontend/src/main.tsx`.",
-      "reason": "Constraints explicitly state not to modify immutable hook/bootstrap files including `frontend/src/main.tsx`, but the diff summary lists it among changed files.",
+      "description": "New URL parameter/sessionStorage utilities for persisting parameters and handling hash-based routing query params.",
+      "reason": "BuildRequest does not request new URL param utilities; only deployment/go-live and PWA icon existence/verification are specified.",
       "evidence": [
-        "frontend-file-summaries.txt"
+        "frontend/src/utils/urlParams.ts"
       ]
     },
     {
-      "description": "Documentation oriented toward Google Play publishing (beyond local build instructions), including sections about Play Store uniqueness and publishing steps.",
-      "reason": "Non-goals explicitly exclude Play Store publishing beyond providing local build instructions/scripts. The modified doc is titled and framed as a Play Store publishing guide.",
+      "description": "Addition of frontend/src/backend.did.ts file.",
+      "reason": "BuildRequest does not request adding new generated DID bindings/types; it may be supportive work but is not explicitly required.",
       "evidence": [
-        "frontend/docs/PLAY_STORE_TWA_GUIDE.md"
+        "frontend/src/backend.did.ts"
       ]
     }
   ],
-  "confidence": 0.72,
+  "confidence": 0.74,
   "changed_files": [
+    "backend/main.mo",
     "frontend-file-summaries.txt",
-    "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
+    "frontend/src/App.tsx",
+    "frontend/src/backend.did.ts",
+    "frontend/src/config/index.ts",
+    "frontend/src/hooks/useActor.ts",
+    "frontend/src/pwa/registerServiceWorker.ts",
+    "frontend/src/utils/urlParams.ts",
     "project_state.json"
   ]
 }

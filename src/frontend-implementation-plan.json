@@ -1,72 +1,91 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Build and document Bubblewrap TWA debug APK artifact for the live PWA",
+  "title": "Fix production go-live issues and verify live PWA readiness (frontend-only)",
   "requirements": [
     {
       "id": "REQ-1",
-      "summary": "Ensure the existing Bubblewrap helper script builds a debug APK and outputs it as a predictable downloadable artifact at frontend/artifacts/app-debug.apk.",
+      "summary": "Fix the frontend-side root cause(s) that prevent production go-live/build from succeeding (e.g., missing module exports / type mismatches) while preserving core flows.",
       "acceptanceCriteria": [
-        "Running `cd frontend/scripts && ./twa-build-apk-debug.sh` successfully builds a debug APK using Bubblewrap.",
-        "After a successful build, the file `frontend/artifacts/app-debug.apk` exists and is the latest build output (copied from Bubblewrap’s `app/build/outputs/apk/debug/app-debug.apk`).",
-        "The produced APK installs on an Android device/emulator and launches into the wrapped PWA domain (`bajyasmarketshop.icp0.io`)."
+        "A production deployment (go-live) completes successfully without errors.",
+        "No regression in core functionality (product list fetch, product details route, admin page access gating) after the fix.",
+        "If backend state schema changes are required, add a conditional Motoko migration in `backend/migration.mo`; otherwise do not change migration behavior."
       ],
       "file_operations": [
         {
-          "path": "frontend/scripts/twa-build-apk-debug.sh",
-          "operation": "modify",
-          "description": "Harden the debug APK build script for the Bubblewrap TWA workflow: add prerequisite checks (e.g., Bubblewrap CLI present), validate/normalize artifact copy path so the final output is always `frontend/artifacts/app-debug.apk` when run via `cd frontend/scripts && ./twa-build-apk-debug.sh`, and keep the wrapped PWA manifest URL/domain set to `https://bajyasmarketshop.icp0.io/manifest.webmanifest` / `bajyasmarketshop.icp0.io`."
+          "path": "frontend/src/config/index.ts",
+          "operation": "create",
+          "description": "Create a config barrel that exports the backend actor factory used across the app (e.g., `createActorWithConfig`) to resolve current build/go-live failures from missing module resolution. Use the core-infrastructure component’s backend connection configuration patterns. Verify the component's usage instructions before implementing."
         },
         {
-          "path": "frontend/artifacts/.gitkeep",
+          "path": "frontend/src/hooks/useActor.ts",
           "operation": "modify",
-          "description": "Keep the artifacts directory tracked and clarify (via comment if supported by the repo conventions) that `frontend/artifacts/app-debug.apk` is a generated build output produced by the TWA script."
+          "description": "Adjust actor initialization to be production-build safe: align the actor type usage with the generated backend typings (or safely narrow/cast for internal initialization helpers) so TypeScript does not fail go-live builds while keeping the existing admin access gating behavior intact. Verify the authorization component’s frontend usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/runtimeSmokeCheck.ts",
+          "operation": "modify",
+          "description": "Update imports to use the new `frontend/src/config/index.ts` barrel (rather than relying on a potentially missing path) so production builds resolve consistently; keep the smoke check non-blocking and non-throwing."
         }
       ]
     },
     {
       "id": "REQ-2",
-      "summary": "Ensure the PWA icon assets referenced by the manifest exist in frontend/public/assets/generated with the required sizes so Bubblewrap init/build does not fail.",
+      "summary": "Ensure all PWA icon assets referenced by the manifest exist under frontend/public/assets/generated with exact filenames and sizes.",
       "acceptanceCriteria": [
-        "The following files exist in `frontend/public/assets/generated/` and have the exact pixel dimensions indicated in their filenames: `pwa-icon-192.dim_192x192.png`, `pwa-icon-512.dim_512x512.png`, and `pwa-icon-maskable-512.dim_512x512.png`.",
-        "`frontend/public/manifest.webmanifest` references icons that resolve correctly at runtime (no 404s when fetching the manifest and icon URLs)."
+        "`frontend/public/assets/generated/pwa-icon-192.dim_192x192.png` exists and is 192x192.",
+        "`frontend/public/assets/generated/pwa-icon-512.dim_512x512.png` exists and is 512x512.",
+        "`frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png` exists and is 512x512 and suitable for maskable usage (safe-area composition).",
+        "The manifest icons load without 404s when the app is served (no missing icon requests in browser devtools network panel)."
       ],
       "file_operations": [
         {
           "path": "frontend/public/assets/generated/pwa-icon-192.dim_192x192.png",
           "operation": "create",
-          "description": "Add/ensure the 192x192 PWA icon asset exists at this exact path for manifest/TWA usage."
+          "description": "Add the generated 192x192 PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-192.dim_192x192.png."
         },
         {
           "path": "frontend/public/assets/generated/pwa-icon-512.dim_512x512.png",
           "operation": "create",
-          "description": "Add/ensure the 512x512 PWA icon asset exists at this exact path for manifest/TWA usage."
+          "description": "Add the generated 512x512 PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-512.dim_512x512.png."
         },
         {
           "path": "frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png",
           "operation": "create",
-          "description": "Add/ensure the 512x512 maskable PWA icon asset exists at this exact path for manifest/TWA usage."
+          "description": "Add the generated 512x512 maskable PWA icon asset at the exact required path and filename: frontend/public/assets/generated/pwa-icon-maskable-512.dim_512x512.png (ensure maskable safe-area composition)."
         },
         {
           "path": "frontend/public/manifest.webmanifest",
           "operation": "modify",
-          "description": "Verify the manifest icon entries reference the exact generated asset filenames under `frontend/public/assets/generated/` (192x192, 512x512, and maskable 512x512) so the URLs resolve without 404s at runtime."
+          "description": "Verify the manifest icon entries exactly match the required filenames and sizes and remain consistent with the generated assets under frontend/public/assets/generated/ (adjust only if any mismatch is found)."
         }
       ]
     },
     {
       "id": "REQ-3",
-      "summary": "Update repo-local English documentation with the exact commands to build the debug APK via scripts and the expected output artifact path.",
+      "summary": "Add lightweight runtime checks and guardrails to help verify the live PWA works at the production origin, including routing, product loading, 404 behavior, and service worker registration stability.",
       "acceptanceCriteria": [
-        "Documentation includes the command to run (from repo root) to build the debug APK via the helper script.",
-        "Documentation explicitly states that the expected downloadable output is `frontend/artifacts/app-debug.apk`.",
-        "Documentation mentions required local prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) at a high level or links to the existing guide section that lists them."
+        "Visiting https://bajyasmarketshop.icp0.io loads the app successfully.",
+        "Navigating to the Home page, Products page, and a Product Details page works without routing errors.",
+        "The product list loads successfully from the backend (no uncaught exceptions; user-facing errors are handled).",
+        "The 404 / Not Found route renders when visiting an unknown path.",
+        "Service worker registers without throwing runtime errors in console (warnings are acceptable)."
       ],
       "file_operations": [
         {
-          "path": "frontend/docs/PLAY_STORE_TWA_GUIDE.md",
+          "path": "frontend/src/App.tsx",
           "operation": "modify",
-          "description": "Add or update a clearly labeled section that documents (1) the exact repo-root command to build the debug APK using the helper script (`cd frontend/scripts && ./twa-build-apk-debug.sh`), (2) that the expected downloadable artifact output is `frontend/artifacts/app-debug.apk`, and (3) high-level prerequisites (Bubblewrap CLI, Java/JDK, Android SDK) or a link/reference to the prerequisites section already in this guide."
+          "description": "Wire the existing non-blocking runtime smoke check into app startup (alongside service worker registration) to aid production verification of backend connectivity and routing without impacting user experience."
+        },
+        {
+          "path": "frontend/src/pwa/registerServiceWorker.ts",
+          "operation": "modify",
+          "description": "Harden service worker registration logging/error handling so production runtime does not throw uncaught errors during registration (keep warnings/logs acceptable per requirement)."
+        },
+        {
+          "path": "frontend/src/utils/runtimeSmokeCheck.ts",
+          "operation": "modify",
+          "description": "Ensure smoke check gracefully handles failures and logs actionable diagnostics for production verification (no uncaught exceptions), using the same actor creation path as the rest of the app via the core-infrastructure configuration. Verify the component's usage instructions before implementing."
         }
       ]
     }

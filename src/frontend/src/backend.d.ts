@@ -16,6 +16,9 @@ export interface ProductInput {
     category: string;
     price: number;
 }
+export interface UserProfile {
+    name: string;
+}
 export interface Product {
     id: bigint;
     inStock: boolean;
@@ -26,11 +29,22 @@ export interface Product {
     category: string;
     price: number;
 }
+export enum UserRole {
+    admin = "admin",
+    user = "user",
+    guest = "guest"
+}
 export interface backendInterface {
     addProduct(productInput: ProductInput): Promise<bigint | null>;
+    assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
     deleteProduct(id: bigint): Promise<void>;
     getAllProducts(): Promise<Array<Product>>;
+    getCallerUserProfile(): Promise<UserProfile | null>;
+    getCallerUserRole(): Promise<UserRole>;
     getProductsSortedByPrice(): Promise<Array<Product>>;
+    getUserProfile(user: Principal): Promise<UserProfile | null>;
+    isCallerAdmin(): Promise<boolean>;
+    saveCallerUserProfile(profile: UserProfile): Promise<void>;
     searchProducts(searchTerm: string): Promise<Array<Product>>;
     seedSampleProducts(): Promise<void>;
     toggleProductStock(id: bigint, inStock: boolean): Promise<void>;

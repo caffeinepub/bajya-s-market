@@ -29,11 +29,22 @@ export interface ProductInput {
   'category' : string,
   'price' : number,
 }
+export interface UserProfile { 'name' : string }
+export type UserRole = { 'admin' : null } |
+  { 'user' : null } |
+  { 'guest' : null };
 export interface _SERVICE {
+  '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addProduct' : ActorMethod<[ProductInput], [] | [bigint]>,
+  'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
   'deleteProduct' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
+  'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,
+  'getCallerUserRole' : ActorMethod<[], UserRole>,
   'getProductsSortedByPrice' : ActorMethod<[], Array<Product>>,
+  'getUserProfile' : ActorMethod<[Principal], [] | [UserProfile]>,
+  'isCallerAdmin' : ActorMethod<[], boolean>,
+  'saveCallerUserProfile' : ActorMethod<[UserProfile], undefined>,
   'searchProducts' : ActorMethod<[string], Array<Product>>,
   'seedSampleProducts' : ActorMethod<[], undefined>,
   'toggleProductStock' : ActorMethod<[bigint, boolean], undefined>,
