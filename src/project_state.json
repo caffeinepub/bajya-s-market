@@ -1,48 +1,20 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "New project",
+  "summary": "Project is in build/release phase; user requested to deploy the current build (App draft Version 16) live.",
   "architectural_notes": [],
-  "known_issues": [
-    "Deployment error encountered during build/deploy; user requests immediate redeploy and publish to live."
-  ],
-  "isFixRequest": true,
-  "existing_features": [
+  "known_issues": [],
+  "isFixRequest": false,
+  "existing_features": [],
+  "new_feature_requests": [
     {
-      "id": "feature-fix-the-production-live-deployment-so-the-public-url-resolves-correctly-and-does-not-show-the-internet-computer-gateway-error-canister-id-not-resolved-error-400-ensure-the-deployed-frontend-is-accessible-via-a-valid-canister-url-domain-and-points-to-the-correct-backend-canister",
-      "title": "Fix the production/live deployment so the public URL resolves correctly and does not show the Internet Computer gateway error “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
-      "reqIds": [
-        "REQ-1"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-ensure-production-configuration-is-correctly-provided-at-runtime-by-serving-a-valid-env-json-in-the-deployed-frontend-with-the-correct-backend-canister-id-or-canisterid-and-dfx-network-values-so-frontend-src-config-index-ts-does-not-fall-back-to-the-placeholder-canister-id-rrkah-fqaaa-aaaaa-aaaaq-cai",
-      "title": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with the correct `BACKEND_CANISTER_ID` (or `canisterId`) and `DFX_NETWORK` values so `frontend/src/config/index.ts` does not fall back to the placeholder canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`).",
-      "reqIds": [
-        "REQ-2"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-add-a-user-facing-english-error-state-when-backend-configuration-is-missing-invalid-e-g-env-json-missing-or-canisterid-empty-that-clearly-explains-the-problem-and-how-to-fix-it-instead-of-failing-silently-or-only-logging-to-the-console",
-      "title": "Add a user-facing, English error state when backend configuration is missing/invalid (e.g., `/env.json` missing or canisterId empty) that clearly explains the problem and how to fix it, instead of failing silently or only logging to the console.",
-      "reqIds": [
-        "REQ-3"
-      ],
-      "version": 1
-    },
-    {
-      "id": "feature-redeploy-publish-the-fixed-build-to-the-live-internet-computer-environment-and-confirm-the-live-url-works-after-deployment",
-      "title": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment.",
-      "reqIds": [
-        "REQ-4"
-      ],
-      "version": 1
+      "id": "AR-1",
+      "summary": "Deploy the current build (App draft Version 16) to production / make it live",
+      "reqIds": [],
+      "status": "pending"
     }
   ],
-  "new_feature_requests": [],
-  "projectName": "Fix live deployment and redeploy (resolve “Canister ID Not Resolved” / missing canister ID config)",
+  "projectName": "Untitled request",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

@@ -1,91 +1,20 @@
 {
   "kind": "coverage_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T23:21:45.092Z",
+  "generatedAt": "2026-02-05T23:51:30.570Z",
   "sources": {
     "buildRequest": true,
     "implementationPlan": true
   },
   "requirements": {
-    "total": 4,
-    "implemented": 4,
-    "items": [
-      {
-        "id": "REQ-1",
-        "summary": "Fix the production/live deployment so the public URL resolves correctly and does not show the Internet Computer gateway error “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/config/index.ts",
-          "frontend/public/sw.js",
-          "frontend/src/utils/runtimeSmokeCheck.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/config/index.ts",
-          "frontend/public/sw.js",
-          "frontend/src/utils/runtimeSmokeCheck.ts"
-        ]
-      },
-      {
-        "id": "REQ-2",
-        "summary": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with the correct `BACKEND_CANISTER_ID` (or `canisterId`) and `DFX_NETWORK` values so `frontend/src/config/index.ts` does not fall back to the placeholder canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`).",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/public/env.json",
-          "frontend/src/config/index.ts"
-        ],
-        "matchedFiles": [
-          "frontend/public/env.json",
-          "frontend/src/config/index.ts"
-        ]
-      },
-      {
-        "id": "REQ-3",
-        "summary": "Add a user-facing, English error state when backend configuration is missing/invalid (e.g., `/env.json` missing or canisterId empty) that clearly explains the problem and how to fix it, instead of failing silently or only logging to the console.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/src/hooks/useEnvConfig.ts",
-          "frontend/src/components/ConfigErrorState.tsx",
-          "frontend/src/components/StoreLayout.tsx",
-          "frontend/src/utils/toUserMessage.ts"
-        ],
-        "matchedFiles": [
-          "frontend/src/hooks/useEnvConfig.ts",
-          "frontend/src/components/ConfigErrorState.tsx",
-          "frontend/src/components/StoreLayout.tsx",
-          "frontend/src/utils/toUserMessage.ts"
-        ]
-      },
-      {
-        "id": "REQ-4",
-        "summary": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment.",
-        "status": "implemented",
-        "plannedFiles": [
-          "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
-          "frontend/public/sw.js"
-        ],
-        "matchedFiles": [
-          "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
-          "frontend/public/sw.js"
-        ]
-      }
-    ]
+    "total": 0,
+    "implemented": 0,
+    "items": []
   },
   "changedFiles": [
     "backend/main.mo",
     "build-request.json",
     "feature_evidence.json",
-    "frontend-file-summaries.txt",
-    "frontend-implementation-plan.json",
-    "frontend/docs/LIVE_DEPLOYMENT_SMOKE_CHECK.md",
-    "frontend/public/env.json",
-    "frontend/public/sw.js",
-    "frontend/src/components/ConfigErrorState.tsx",
-    "frontend/src/components/StoreLayout.tsx",
-    "frontend/src/config/index.ts",
-    "frontend/src/hooks/useEnvConfig.ts",
-    "frontend/src/lib/errors.ts",
-    "frontend/src/utils/runtimeSmokeCheck.ts",
-    "frontend/src/utils/toUserMessage.ts",
     "project_state.json",
     "scratch/component-selection.json",
     "spec.md",

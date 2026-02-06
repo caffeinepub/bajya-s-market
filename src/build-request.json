@@ -1,103 +1,12 @@
 {
   "kind": "build_request",
-  "title": "Fix live deployment and redeploy (resolve “Canister ID Not Resolved” / missing canister ID config)",
-  "priority": "high",
-  "requirements": [
-    {
-      "id": "REQ-1",
-      "text": "Fix the production/live deployment so the public URL resolves correctly and does not show the Internet Computer gateway error “Canister ID Not Resolved (Error 400)”. Ensure the deployed frontend is accessible via a valid canister URL/domain and points to the correct backend canister.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "recent-messages-2",
-          "recent-messages-3"
-        ],
-        "quotes": [
-          "What the fuck redeploy and publish to live it now"
-        ]
-      },
-      "acceptanceCriteria": [
-        "Opening the live/public app URL loads the React app (not the IC gateway “Canister ID Not Resolved” page).",
-        "The frontend can successfully call the backend (e.g., products list loads without backend connectivity errors) when accessed from the live URL."
-      ]
-    },
-    {
-      "id": "REQ-2",
-      "text": "Ensure production configuration is correctly provided at runtime by serving a valid `/env.json` in the deployed frontend with the correct `BACKEND_CANISTER_ID` (or `canisterId`) and `DFX_NETWORK` values so `frontend/src/config/index.ts` does not fall back to the placeholder canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`).",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages-2"
-        ],
-        "quotes": [
-          "Canister ID Not Resolved"
-        ]
-      },
-      "acceptanceCriteria": [
-        "In the live deployment, `GET /env.json` returns HTTP 200 and includes a non-placeholder backend canister ID.",
-        "In the live deployment, the app initializes the actor using the canister ID from `/env.json` (verified by successful calls like `getAllProducts`)."
-      ]
-    },
-    {
-      "id": "REQ-3",
-      "text": "Add a user-facing, English error state when backend configuration is missing/invalid (e.g., `/env.json` missing or canisterId empty) that clearly explains the problem and how to fix it, instead of failing silently or only logging to the console.",
-      "target": "frontend",
-      "source": {
-        "messageIds": [
-          "recent-messages-2"
-        ],
-        "quotes": [
-          "Canister ID Not Resolved"
-        ]
-      },
-      "acceptanceCriteria": [
-        "If `/env.json` is missing/invalid in a production build, the UI shows a clear error message indicating backend configuration is not set (instead of only console warnings).",
-        "The error message does not expose secrets and includes actionable next steps (e.g., redeploy with correct canister ID in env.json)."
-      ]
-    },
-    {
-      "id": "REQ-4",
-      "text": "Redeploy/publish the fixed build to the live Internet Computer environment and confirm the live URL works after deployment.",
-      "target": "both",
-      "source": {
-        "messageIds": [
-          "recent-messages-2",
-          "recent-messages-3"
-        ],
-        "quotes": [
-          "redeploy and publish to live it now"
-        ]
-      },
-      "acceptanceCriteria": [
-        "A fresh live deployment is produced after the fix, and the live app URL loads successfully.",
-        "A post-deploy smoke check confirms the frontend can reach the backend canister in production."
-      ]
-    }
-  ],
-  "constraints": [
-    "Backend must remain a single Motoko actor (all logic in backend/main.mo).",
-    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
-    "Do not introduce non-supported backend technologies or external databases/services."
-  ],
-  "nonGoals": [
-    "Adding new product features unrelated to deployment/config resolution.",
-    "Integrating third-party authentication beyond Internet Identity.",
-    "Implementing real-time features (websockets/chat/push)."
-  ],
+  "title": "Untitled request",
+  "priority": "normal",
+  "requirements": [],
+  "constraints": [],
+  "nonGoals": [],
   "imageRequirements": {
     "required": [],
     "edits": []
-  },
-  "userProfileUpdate": {
-    "goalsToAdd": [],
-    "goalsToRemove": [],
-    "preferencesToAdd": [
-      "Use English for all user-facing text."
-    ],
-    "preferencesToRemove": [],
-    "miscToAdd": [],
-    "miscToRemove": [],
-    "fieldsToSet": {},
-    "fieldsToDelete": []
   }
 }

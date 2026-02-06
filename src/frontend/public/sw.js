@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bajyas-market-v2';
+const CACHE_NAME = 'bajyas-market-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Note: env.json should NOT be precached or cached at all
@@ -31,6 +31,7 @@ self.addEventListener('activate', (event) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
           if (cacheName !== CACHE_NAME) {
+            console.log('[SW] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
           }
         })
@@ -61,12 +62,21 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(event.request.url);
   
-  // CRITICAL: Never cache env.json - always fetch from network
+  // CRITICAL: Never cache env.json - always fetch from network with cache-busting
   // This ensures redeployments immediately pick up new configuration
-  if (url.pathname === '/env.json') {
+  if (url.pathname === '/env.json' || url.pathname.includes('env.json')) {
     event.respondWith(
-      fetch(event.request, { cache: 'no-store' }).catch(() => {
-        return new Response(JSON.stringify({ error: 'Configuration unavailable' }), {
+      fetch(event.request, { 
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+        }
+      }).catch(() => {
+        return new Response(JSON.stringify({ 
+          error: 'Configuration unavailable',
+          message: 'Unable to load runtime configuration. Please check your network connection.'
+        }), {
           status: 503,
           headers: { 'Content-Type': 'application/json' },
         });

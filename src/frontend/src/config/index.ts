@@ -31,7 +31,7 @@ function isValidCanisterId(canisterId: string | undefined): boolean {
 }
 
 /**
- * Load configuration from environment
+ * Load configuration from environment with cache-busting
  * This function is used by the Internet Identity provider
  */
 export async function loadConfig(): Promise<EnvConfig> {
@@ -40,8 +40,16 @@ export async function loadConfig(): Promise<EnvConfig> {
   }
 
   try {
-    // Try to load from env.json (production)
-    const response = await fetch('/env.json');
+    // Add cache-busting timestamp to ensure fresh config after redeployments
+    const timestamp = Date.now();
+    const response = await fetch(`/env.json?t=${timestamp}`, {
+      cache: 'no-store',
+      headers: {
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
+      },
+    });
+    
     if (response.ok) {
       const envData = await response.json();
       const canisterId = envData.BACKEND_CANISTER_ID || envData.canisterId;
@@ -49,7 +57,9 @@ export async function loadConfig(): Promise<EnvConfig> {
       if (!isValidCanisterId(canisterId)) {
         throw new ConfigurationError(
           'Backend canister ID is missing or invalid in env.json. ' +
-          'Please ensure env.json contains a valid BACKEND_CANISTER_ID.'
+          'The deployment configuration must include a valid BACKEND_CANISTER_ID. ' +
+          `Current value: "${canisterId || 'undefined'}". ` +
+          'Please verify that env.json was properly updated during deployment with the actual backend canister ID from the IC mainnet.'
         );
       }
       
@@ -59,22 +69,36 @@ export async function loadConfig(): Promise<EnvConfig> {
         ii_derivation_origin: envData.II_DERIVATION_ORIGIN,
       };
       
-      console.log('[Config] Loaded from env.json:', {
+      console.log('[Config] ✓ Loaded from env.json:', {
         canisterId: cachedConfig.canisterId,
         network: envData.DFX_NETWORK,
-        host: cachedConfig.host
+        host: cachedConfig.host,
+        timestamp: new Date().toISOString(),
       });
       
       return cachedConfig;
+    } else {
+      throw new Error(`Failed to fetch env.json: ${response.status} ${response.statusText}`);
     }
   } catch (error) {
     if (error instanceof ConfigurationError) {
       throw error;
     }
-    console.warn('[Config] Failed to load env.json:', error);
+    console.error('[Config] ✗ Failed to load env.json:', error);
+    
+    // In production, we must have a valid env.json
+    const isDevelopment = import.meta.env.DEV;
+    if (!isDevelopment) {
+      throw new ConfigurationError(
+        'Backend configuration is not available. ' +
+        'The application requires a valid env.json file at the deployment root with a valid BACKEND_CANISTER_ID. ' +
+        'This error typically occurs when: (1) env.json is missing, (2) the backend canister ID is a placeholder, or (3) the deployment was incomplete. ' +
+        'Please redeploy with the correct configuration.'
+      );
+    }
   }
 
-  // Fallback to environment variables (development)
+  // Fallback to environment variables (development only)
   const isDevelopment = import.meta.env.DEV;
   const fallbackCanisterId = import.meta.env.VITE_BACKEND_CANISTER_ID || 'rrkah-fqaaa-aaaaa-aaaaq-cai';
   
@@ -82,7 +106,7 @@ export async function loadConfig(): Promise<EnvConfig> {
     throw new ConfigurationError(
       'Backend configuration is not available. ' +
       'The application requires a valid backend canister ID to function. ' +
-      'Please ensure the deployment includes a properly configured env.json file.'
+      'Please ensure the deployment includes a properly configured env.json file with BACKEND_CANISTER_ID set to the actual IC mainnet canister ID.'
     );
   }
   

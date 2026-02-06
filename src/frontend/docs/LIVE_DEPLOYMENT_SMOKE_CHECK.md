@@ -14,3 +14,4 @@ This checklist helps verify that the frontend is correctly deployed and can comm
 
 The `env.json` file must be present at the root of the deployed frontend with the correct values:
 
+**Required format:**
