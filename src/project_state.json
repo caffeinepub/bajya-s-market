@@ -1,20 +1,66 @@
 {
   "schemaVersion": "1.0.0",
   "projectStateVersion": 3,
-  "summary": "Project is in build/release phase; user requested to deploy the current build (App draft Version 16) live.",
-  "architectural_notes": [],
-  "known_issues": [],
-  "isFixRequest": false,
-  "existing_features": [],
+  "summary": "Building a live app and adding product functionality with automatic Shopify product sync (including full product details like title, price, images, etc.).",
+  "architectural_notes": [
+    "Plan Shopify integration for automatic product sync via Shopify APIs (auth + product data import/sync)."
+  ],
+  "known_issues": [
+    "Build process failed when starting Shopify sync feature build; user requested to retry."
+  ],
+  "isFixRequest": true,
+  "imageRequirements": "## Required Images\n- Simple product placeholder image on a neutral background, minimal icon/illustration style (product-placeholder.dim_800x800.png)",
+  "existing_features": [
+    {
+      "id": "feature-add-an-admin-only-shopify-product-sync-workflow-that-can-import-products-from-a-shopify-store-into-the-existing-catalog-including-at-minimum-title-name-description-price-currency-category-type-best-effort-main-image-url-and-in-stock-status-best-effort",
+      "title": "Add an admin-only Shopify product sync workflow that can import products from a Shopify store into the existing catalog, including at minimum: title/name, description, price, currency, category/type (best-effort), main image URL, and in-stock status (best-effort).",
+      "reqIds": [
+        "REQ-1"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-implement-a-shopify-storefront-api-integration-for-product-import-that-does-not-require-third-party-auth-providers-add-an-admin-ui-section-where-an-admin-can-enter-the-shopify-store-domain-and-storefront-access-token-test-the-connection-and-run-a-sync-now-action-that-fetches-products-from-shopify-and-imports-them-into-the-backend-via-the-bulk-upsert-endpoint",
+      "title": "Implement a Shopify Storefront API integration for product import that does not require third-party auth providers: add an Admin UI section where an admin can enter the Shopify store domain and Storefront access token, test the connection, and run a “Sync now” action that fetches products from Shopify and imports them into the backend via the bulk upsert endpoint.",
+      "reqIds": [
+        "REQ-3"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-ensure-the-frontend-canister-interface-typing-is-complete-for-any-newly-added-backend-methods-used-by-shopify-sync-so-react-query-hooks-can-call-them-without-using-any-types-or-missing-method-errors-at-compile-time",
+      "title": "Ensure the frontend canister interface typing is complete for any newly added backend methods used by Shopify sync, so React Query hooks can call them without using `any` types or missing method errors at compile time.",
+      "reqIds": [
+        "REQ-4"
+      ],
+      "version": 1
+    },
+    {
+      "id": "feature-add-a-consistent-empty-image-fallback-so-products-without-a-valid-image-render-a-local-placeholder-image-asset-instead-of-a-broken-image",
+      "title": "Add a consistent empty-image fallback so products without a valid image render a local placeholder image asset instead of a broken image.",
+      "reqIds": [
+        "REQ-5"
+      ],
+      "version": 1
+    }
+  ],
   "new_feature_requests": [
     {
       "id": "AR-1",
-      "summary": "Deploy the current build (App draft Version 16) to production / make it live",
+      "summary": "Add automatic product sync from Shopify, including importing full product details (title, price, images, description, etc.).",
       "reqIds": [],
+      "status": "pending"
+    },
+    {
+      "id": "AR-3",
+      "summary": "Extend the backend product model to support reliable upsert/merge for Shopify-imported products by storing a stable external identifier and source on each product, and implement an admin-only bulk upsert method that creates new products or updates existing ones based on that external identifier.",
+      "reqIds": [
+        "REQ-2"
+      ],
       "status": "pending"
     }
   ],
-  "projectName": "Untitled request",
+  "projectName": "Retry: Add automatic Shopify product sync (title, price, images, description) into existing product catalog",
   "clarification_mode": "instant",
   "clarification_rounds": 0
 }

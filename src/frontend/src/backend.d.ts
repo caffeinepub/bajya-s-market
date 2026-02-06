@@ -8,7 +8,9 @@ export interface None {
 }
 export type Option<T> = Some<T> | None;
 export interface ProductInput {
+    externalSource?: ExternalSource;
     inStock: boolean;
+    externalId?: string;
     name: string;
     description: string;
     imageUrl: string;
@@ -16,12 +18,24 @@ export interface ProductInput {
     category: string;
     price: number;
 }
+export type ExternalSource = {
+    __kind__: "other";
+    other: string;
+} | {
+    __kind__: "shopify";
+    shopify: null;
+} | {
+    __kind__: "manual";
+    manual: null;
+};
 export interface UserProfile {
     name: string;
 }
 export interface Product {
     id: bigint;
+    externalSource?: ExternalSource;
     inStock: boolean;
+    externalId?: string;
     name: string;
     description: string;
     imageUrl: string;
@@ -37,6 +51,7 @@ export enum UserRole {
 export interface backendInterface {
     addProduct(productInput: ProductInput): Promise<bigint | null>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    bulkUpsertShopifyProducts(productsInput: Array<ProductInput>): Promise<void>;
     deleteProduct(id: bigint): Promise<void>;
     getAllProducts(): Promise<Array<Product>>;
     getCallerUserProfile(): Promise<UserProfile | null>;

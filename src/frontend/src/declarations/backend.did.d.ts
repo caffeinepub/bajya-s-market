@@ -10,9 +10,14 @@ import type { ActorMethod } from '@icp-sdk/core/agent';
 import type { IDL } from '@icp-sdk/core/candid';
 import type { Principal } from '@icp-sdk/core/principal';
 
+export type ExternalSource = { 'other' : string } |
+  { 'shopify' : null } |
+  { 'manual' : null };
 export interface Product {
   'id' : bigint,
+  'externalSource' : [] | [ExternalSource],
   'inStock' : boolean,
+  'externalId' : [] | [string],
   'name' : string,
   'description' : string,
   'imageUrl' : string,
@@ -21,7 +26,9 @@ export interface Product {
   'price' : number,
 }
 export interface ProductInput {
+  'externalSource' : [] | [ExternalSource],
   'inStock' : boolean,
+  'externalId' : [] | [string],
   'name' : string,
   'description' : string,
   'imageUrl' : string,
@@ -37,6 +44,7 @@ export interface _SERVICE {
   '_initializeAccessControlWithSecret' : ActorMethod<[string], undefined>,
   'addProduct' : ActorMethod<[ProductInput], [] | [bigint]>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'bulkUpsertShopifyProducts' : ActorMethod<[Array<ProductInput>], undefined>,
   'deleteProduct' : ActorMethod<[bigint], undefined>,
   'getAllProducts' : ActorMethod<[], Array<Product>>,
   'getCallerUserProfile' : ActorMethod<[], [] | [UserProfile]>,

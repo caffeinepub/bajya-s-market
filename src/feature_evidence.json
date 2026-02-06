@@ -1,4 +1,87 @@
 {
   "kind": "feature_evidence_report",
-  "features": []
+  "features": [
+    {
+      "featureId": "feature-add-an-admin-only-shopify-product-sync-workflow-that-can-import-products-from-a-shopify-store-into-the-existing-catalog-including-at-minimum-title-name-description-price-currency-category-type-best-effort-main-image-url-and-in-stock-status-best-effort",
+      "featureTitle": "Add an admin-only Shopify product sync workflow that can import products from a Shopify store into the existing catalog, including at minimum: title/name, description, price, currency, category/type (best-effort), main image URL, and in-stock status (best-effort).",
+      "files": [
+        "frontend/src/components/StoreHeader.tsx",
+        "frontend/src/components/admin/AdminShopifySyncSection.tsx",
+        "frontend/src/hooks/useIsAdmin.ts",
+        "frontend/src/pages/AdminPage.tsx",
+        "frontend/src/utils/toUserMessage.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-1"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-implement-a-shopify-storefront-api-integration-for-product-import-that-does-not-require-third-party-auth-providers-add-an-admin-ui-section-where-an-admin-can-enter-the-shopify-store-domain-and-storefront-access-token-test-the-connection-and-run-a-sync-now-action-that-fetches-products-from-shopify-and-imports-them-into-the-backend-via-the-bulk-upsert-endpoint",
+      "featureTitle": "Implement a Shopify Storefront API integration for product import that does not require third-party auth providers: add an Admin UI section where an admin can enter the Shopify store domain and Storefront access token, test the connection, and run a “Sync now” action that fetches products from Shopify and imports them into the backend via the bulk upsert endpoint.",
+      "files": [
+        "frontend/src/components/admin/AdminShopifySyncSection.tsx",
+        "frontend/src/hooks/useShopifySync.ts",
+        "frontend/src/lib/shopifyStorefront.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-3"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-ensure-the-frontend-canister-interface-typing-is-complete-for-any-newly-added-backend-methods-used-by-shopify-sync-so-react-query-hooks-can-call-them-without-using-any-types-or-missing-method-errors-at-compile-time",
+      "featureTitle": "Ensure the frontend canister interface typing is complete for any newly added backend methods used by Shopify sync, so React Query hooks can call them without using `any` types or missing method errors at compile time.",
+      "files": [
+        "frontend/src/hooks/useShopifySync.ts"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-4"
+      ],
+      "confidence": "high"
+    },
+    {
+      "featureId": "feature-add-a-consistent-empty-image-fallback-so-products-without-a-valid-image-render-a-local-placeholder-image-asset-instead-of-a-broken-image",
+      "featureTitle": "Add a consistent empty-image fallback so products without a valid image render a local placeholder image asset instead of a broken image.",
+      "files": [
+        "frontend/src/components/admin/AdminProductsTable.tsx"
+      ],
+      "components": [
+        "core-infrastructure@1.0.2",
+        "shadcn-ui@1.0.0",
+        "build-template-react@1.0.0",
+        "initial-app@1.0.0",
+        "github-export-icp-cli@1.0.0",
+        "authorization@4.0.0"
+      ],
+      "testIds": [
+        "REQ-5"
+      ],
+      "confidence": "high"
+    }
+  ]
 }

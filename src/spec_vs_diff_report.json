@@ -1,35 +1,60 @@
 {
   "kind": "spec_vs_diff_report",
   "version": "1.0",
-  "generatedAt": "2026-02-05T23:51:30.567Z",
-  "summary": "BuildRequest contains no requirements or acceptance criteria, but the diff introduces substantial new backend functionality (product catalog endpoints and access control) and updates project_state metadata with a deployment request not present in the BuildRequest.",
-  "missing_requirements": [],
-  "hallucinated_features": [
+  "generatedAt": "2026-02-06T00:23:13.616Z",
+  "summary": "Diff adds Shopify Storefront fetching + Admin UI section for testing connection and syncing, plus frontend admin gating and product image fallback in AdminProductsTable. Backend product model appears extended with externalId/externalSource and a migration, but the diff is truncated such that the required bulk upsert/admin auth enforcement and frontend canister typings cannot be confirmed. Placeholder image asset itself is not shown as added.",
+  "missing_requirements": [
     {
-      "description": "Introduced an access control/authorization system initialization and admin permission checks (e.g., for seeding products and adding products).",
-      "reason": "No requirements were provided in the BuildRequest, so adding authorization/access-control behavior is not requested.",
+      "id": "REQ-2",
+      "requirement": "Implement an admin-only bulk upsert method that creates/updates products based on stable external identifier/source, and return authorization errors for unauthorized callers.",
+      "reason": "Frontend calls `actor.bulkUpsertShopifyProducts(...)`, but the backend diff excerpt does not show a `bulkUpsertShopifyProducts` method implementation nor its admin-only authorization checks; the backend file is truncated before any such method appears.",
       "evidence": [
-        "backend/main.mo"
+        "backend/main.mo",
+        "frontend/src/hooks/useShopifySync.ts"
       ]
     },
     {
-      "description": "Implemented a product catalog backend (Product/ProductInput types, in-memory product store, seeding sample products, listing/searching/sorting products, and adding products).",
-      "reason": "No requirements were provided in the BuildRequest, so adding product store functionality is not requested.",
+      "id": "REQ-4",
+      "requirement": "Ensure frontend canister interface typing is complete for newly added backend methods (e.g., isCallerAdmin, bulkUpsertShopifyProducts) without using `any`.",
+      "reason": "Diff shows new frontend code calling `actor.isCallerAdmin()` and `actor.bulkUpsertShopifyProducts(...)`, but the only mentioned change to `frontend/src/backend.d.ts` is a slug update; the summary provides no evidence that the new methods were added to the TypeScript actor type definitions.",
       "evidence": [
-        "backend/main.mo"
+        "frontend/src/hooks/useIsAdmin.ts",
+        "frontend/src/hooks/useShopifySync.ts",
+        "frontend-file-summaries.txt (mentions backend.d.ts only slug update)"
       ]
     },
     {
-      "description": "Updated project_state.json to describe a pending feature request to deploy 'App draft Version 16' live.",
-      "reason": "The BuildRequest explicitly lists 'Requirements: none'; this deployment request is not part of the provided BuildRequest content.",
+      "id": "REQ-5",
+      "requirement": "Add a local placeholder image asset file (product-placeholder.dim_800x800.png) and reference it as an empty/broken-image fallback across the UI.",
+      "reason": "Code references `/assets/generated/product-placeholder.dim_800x800.png` as a fallback, but the diff summary does not show the required image file being added to frontend static assets, and only one component change is evidenced (AdminProductsTable).",
       "evidence": [
-        "project_state.json"
+        "frontend/src/components/admin/AdminProductsTable.tsx"
       ]
     }
   ],
-  "confidence": 0.78,
+  "hallucinated_features": [
+    {
+      "description": "Added a migration module to transform existing product records to include externalId/externalSource fields.",
+      "reason": "BuildRequest did not request a migration system/file explicitly; it only required extending the product model and supporting upsert. The diff adds `backend/migration.mo` and wires migration into the actor.",
+      "evidence": [
+        "backend/migration.mo",
+        "backend/main.mo"
+      ]
+    }
+  ],
+  "confidence": 0.66,
   "changed_files": [
     "backend/main.mo",
+    "backend/migration.mo",
+    "frontend-file-summaries.txt",
+    "frontend/src/components/StoreHeader.tsx",
+    "frontend/src/components/admin/AdminProductsTable.tsx",
+    "frontend/src/components/admin/AdminShopifySyncSection.tsx",
+    "frontend/src/hooks/useIsAdmin.ts",
+    "frontend/src/hooks/useShopifySync.ts",
+    "frontend/src/lib/shopifyStorefront.ts",
+    "frontend/src/pages/AdminPage.tsx",
+    "frontend/src/utils/toUserMessage.ts",
     "project_state.json"
   ]
 }

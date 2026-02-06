@@ -63,7 +63,7 @@ export default function AdminProductsTable({ products, onEdit }: AdminProductsTa
           <Package className="mb-4 h-12 w-12 text-muted-foreground" />
           <h3 className="mb-2 text-lg font-semibold">No products yet</h3>
           <p className="mb-4 text-sm text-muted-foreground">
-            Get started by adding your first product
+            Get started by adding your first product or syncing from Shopify
           </p>
         </CardContent>
       </Card>

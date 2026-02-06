@@ -1,18 +1,21 @@
 import { useState } from 'react';
 import { useProducts } from '@/hooks/useProducts';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { LogIn, Plus } from 'lucide-react';
+import { LogIn, Plus, ShieldAlert } from 'lucide-react';
 import AdminProductsTable from '@/components/admin/AdminProductsTable';
 import AdminProductDialog from '@/components/admin/AdminProductDialog';
+import AdminShopifySyncSection from '@/components/admin/AdminShopifySyncSection';
 import type { Product } from '@/backend';
 
 export default function AdminPage() {
   const { identity, login, loginStatus } = useInternetIdentity();
-  const { data: products, isLoading, error } = useProducts();
+  const { data: isAdmin, isLoading: isAdminLoading } = useIsAdmin();
+  const { data: products, isLoading: productsLoading, error } = useProducts();
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
 
@@ -49,6 +52,35 @@ export default function AdminPage() {
     );
   }
 
+  // Show loading while checking admin status
+  if (isAdminLoading) {
+    return (
+      <div className="container py-8">
+        <Skeleton className="mb-8 h-12 w-64" />
+        <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  // Show access denied if not admin
+  if (!isAdmin) {
+    return (
+      <div className="container flex min-h-[60vh] items-center justify-center py-8">
+        <Card className="w-full max-w-md border-destructive/50">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+              <ShieldAlert className="h-6 w-6 text-destructive" />
+            </div>
+            <CardTitle className="text-2xl">Access Denied</CardTitle>
+            <CardDescription>
+              You do not have permission to access the admin panel. Only administrators can manage products.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container py-8">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -61,20 +93,26 @@ export default function AdminPage() {
         <Button
           onClick={() => setIsCreateDialogOpen(true)}
           className="gap-2"
-          disabled={isLoading}
+          disabled={productsLoading}
         >
           <Plus className="h-4 w-4" />
           Add Product
         </Button>
       </div>
 
+      {/* Shopify Sync Section */}
+      <div className="mb-8">
+        <AdminShopifySyncSection />
+      </div>
+
+      {/* Products Table */}
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>
             Failed to load products. Please try again later.
           </AlertDescription>
         </Alert>
-      ) : isLoading ? (
+      ) : productsLoading ? (
         <Card>
           <CardContent className="p-6">
             <div className="space-y-4">

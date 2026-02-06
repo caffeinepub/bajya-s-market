@@ -4,14 +4,17 @@ import { ShoppingBag, Menu, Shield } from 'lucide-react';
 import { useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useInternetIdentity } from '@/hooks/useInternetIdentity';
+import { useIsAdmin } from '@/hooks/useIsAdmin';
 import PwaInstallPrompt from './PwaInstallPrompt';
 
 export default function StoreHeader() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const { identity } = useInternetIdentity();
+  const { data: isAdmin } = useIsAdmin();
 
   const isAuthenticated = !!identity && !identity.getPrincipal().isAnonymous();
+  const showAdminLink = isAuthenticated && isAdmin;
 
   const navLinks = [
     { label: 'Home', path: '/' },
@@ -45,7 +48,7 @@ export default function StoreHeader() {
               {link.label}
             </Link>
           ))}
-          {isAuthenticated && (
+          {showAdminLink && (
             <Link
               to="/admin"
               className="text-sm font-medium text-foreground/80 transition-colors hover:text-foreground"
@@ -90,7 +93,7 @@ export default function StoreHeader() {
                     {link.label}
                   </Link>
                 ))}
-                {isAuthenticated && (
+                {showAdminLink && (
                   <Link
                     to="/admin"
                     onClick={() => setIsOpen(false)}

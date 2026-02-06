@@ -1,6 +1,131 @@
 {
   "kind": "implementation_plan",
   "version": "1.0",
-  "title": "Untitled request",
-  "requirements": []
+  "title": "Admin-only Shopify Storefront product sync into existing catalog (frontend)",
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "summary": "Add an admin-only Shopify sync workflow in the UI to import/update products into the existing catalog and surface sync errors safely.",
+      "acceptanceCriteria": [
+        "Admin users can initiate a Shopify sync from the app UI.",
+        "After sync completes, imported products appear in the Products list and product details pages with the expected fields populated.",
+        "Non-admin users cannot access or trigger Shopify sync features.",
+        "Failures (invalid domain/token, network errors, Shopify API errors) are shown to the admin with an English, user-friendly error message and do not break the rest of the app."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/pages/AdminPage.tsx",
+          "operation": "modify",
+          "description": "Add admin-role gating (using the authorization system’s role-based access control via backend role checks) and render a new Shopify sync section only for admins; ensure non-admins see an English access denied state and cannot trigger sync. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminShopifySyncSection.tsx",
+          "operation": "create",
+          "description": "Create an admin-only UI section for Shopify sync workflow (domain/token inputs, connection test, Sync now, progress + success/error states) and invoke the typed sync logic; use shadcn-ui primitives already present in the project for consistent UI. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useIsAdmin.ts",
+          "operation": "create",
+          "description": "Add a typed React Query hook to determine whether the current caller is an admin (e.g., via backend isCallerAdmin/getCallerUserRole) so UI can reliably gate admin-only capabilities. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/StoreHeader.tsx",
+          "operation": "modify",
+          "description": "Update header navigation so the Admin link only appears for admins (not merely authenticated users), using the new admin-check hook to prevent accidental discovery of admin-only features. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/utils/toUserMessage.ts",
+          "operation": "modify",
+          "description": "Extend user-friendly error mapping to cover Shopify sync failures (invalid domain/token, Shopify API errors, network failures) with actionable English messages suitable for admins, without breaking existing error handling. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "summary": "Implement Shopify Storefront GraphQL product import in the frontend (domain/token, test connection, Sync now) and send imported products to the backend bulk upsert method.",
+      "acceptanceCriteria": [
+        "Admin UI includes inputs for Shopify store domain and Storefront access token, and a “Sync now” button.",
+        "The sync uses Shopify Storefront GraphQL endpoint derived from the provided domain and sends the required headers.",
+        "On sync success, the UI shows a success confirmation in English and the product list refreshes automatically.",
+        "On sync failure, the UI shows an English error state and provides actionable hints (e.g., invalid token/domain, API returned errors)."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/lib/shopifyStorefront.ts",
+          "operation": "create",
+          "description": "Implement Shopify Storefront API fetch helpers (build GraphQL URL from domain, send required headers, run a product-list query, and return parsed results/errors) with no third-party auth provider dependency. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useShopifySync.ts",
+          "operation": "create",
+          "description": "Add a typed React Query mutation that (1) calls the Shopify Storefront helper to fetch products, (2) maps Shopify fields into typed ProductInput (title/name, description, price, currency, category/type best-effort, main image URL best-effort, in-stock best-effort, stable externalId/source), (3) calls the typed backend bulkUpsertShopifyProducts method, and (4) invalidates/refetches the products query on success. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminShopifySyncSection.tsx",
+          "operation": "modify",
+          "description": "Wire the UI to use the Shopify sync hook: implement Test connection and Sync now actions, show loading/progress state, show English success confirmation, and surface actionable English error hints. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useProducts.ts",
+          "operation": "modify",
+          "description": "Ensure the products list can be refreshed automatically after a successful Shopify sync (e.g., by sharing the same React Query key and relying on invalidation from the sync hook), and avoid any unsafe typing changes. Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "summary": "Ensure frontend TypeScript can call newly used Shopify sync backend methods with complete, type-safe canister interface typing.",
+      "acceptanceCriteria": [
+        "Frontend TypeScript build succeeds with the new backend methods referenced by the Shopify sync UI.",
+        "Actor calls for the new sync/upsert method(s) are type-safe and do not rely on `as any` to access missing properties."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/src/backend.d.ts",
+          "operation": "modify",
+          "description": "Verify and, if necessary, update the declared canister interface typing so Shopify sync-related calls are fully typed (including bulkUpsertShopifyProducts and ProductInput fields like externalId/externalSource) and compile without `any` casts. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/hooks/useShopifySync.ts",
+          "operation": "modify",
+          "description": "Ensure actor calls for bulk upsert use the typed backend interface directly (no `as any`), and keep all Shopify-to-ProductInput mapping strongly typed (including ExternalSource/shopify variant construction). Verify the component's usage instructions before implementing."
+        }
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "summary": "Add a consistent local placeholder fallback image for products missing a valid image URL or when image loading fails.",
+      "acceptanceCriteria": [
+        "If a product image fails to load or is missing, the UI shows a local placeholder image instead of a broken image icon.",
+        "The placeholder file path referenced in the UI exists in the built frontend static assets."
+      ],
+      "file_operations": [
+        {
+          "path": "frontend/public/assets/generated/product-placeholder.dim_800x800.png",
+          "operation": "create",
+          "description": "Add the generated placeholder image asset at the exact path referenced by the UI: frontend/public/assets/generated/product-placeholder.dim_800x800.png."
+        },
+        {
+          "path": "frontend/src/components/ProductCard.tsx",
+          "operation": "modify",
+          "description": "Confirm the image missing/onError fallback consistently uses the local placeholder asset path (frontend/public/assets/generated/product-placeholder.dim_800x800.png) and does not render broken images. Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/pages/ProductDetailsPage.tsx",
+          "operation": "modify",
+          "description": "Confirm the product details image missing/onError fallback consistently uses the local placeholder asset path (frontend/public/assets/generated/product-placeholder.dim_800x800.png). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminProductsTable.tsx",
+          "operation": "modify",
+          "description": "Confirm admin table thumbnails use the same local placeholder fallback for missing/broken images (frontend/public/assets/generated/product-placeholder.dim_800x800.png). Verify the component's usage instructions before implementing."
+        },
+        {
+          "path": "frontend/src/components/admin/AdminProductForm.tsx",
+          "operation": "modify",
+          "description": "Confirm the admin product image preview uses the same local placeholder fallback when the preview fails to load, and keep user-facing text in English. Verify the component's usage instructions before implementing."
+        }
+      ]
+    }
+  ]
 }

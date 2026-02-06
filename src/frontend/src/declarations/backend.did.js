@@ -8,8 +8,15 @@
 
 import { IDL } from '@icp-sdk/core/candid';
 
+export const ExternalSource = IDL.Variant({
+  'other' : IDL.Text,
+  'shopify' : IDL.Null,
+  'manual' : IDL.Null,
+});
 export const ProductInput = IDL.Record({
+  'externalSource' : IDL.Opt(ExternalSource),
   'inStock' : IDL.Bool,
+  'externalId' : IDL.Opt(IDL.Text),
   'name' : IDL.Text,
   'description' : IDL.Text,
   'imageUrl' : IDL.Text,
@@ -24,7 +31,9 @@ export const UserRole = IDL.Variant({
 });
 export const Product = IDL.Record({
   'id' : IDL.Nat,
+  'externalSource' : IDL.Opt(ExternalSource),
   'inStock' : IDL.Bool,
+  'externalId' : IDL.Opt(IDL.Text),
   'name' : IDL.Text,
   'description' : IDL.Text,
   'imageUrl' : IDL.Text,
@@ -38,6 +47,7 @@ export const idlService = IDL.Service({
   '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
   'addProduct' : IDL.Func([ProductInput], [IDL.Opt(IDL.Nat)], []),
   'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+  'bulkUpsertShopifyProducts' : IDL.Func([IDL.Vec(ProductInput)], [], []),
   'deleteProduct' : IDL.Func([IDL.Nat], [], []),
   'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
   'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),
@@ -59,8 +69,15 @@ export const idlService = IDL.Service({
 export const idlInitArgs = [];
 
 export const idlFactory = ({ IDL }) => {
+  const ExternalSource = IDL.Variant({
+    'other' : IDL.Text,
+    'shopify' : IDL.Null,
+    'manual' : IDL.Null,
+  });
   const ProductInput = IDL.Record({
+    'externalSource' : IDL.Opt(ExternalSource),
     'inStock' : IDL.Bool,
+    'externalId' : IDL.Opt(IDL.Text),
     'name' : IDL.Text,
     'description' : IDL.Text,
     'imageUrl' : IDL.Text,
@@ -75,7 +92,9 @@ export const idlFactory = ({ IDL }) => {
   });
   const Product = IDL.Record({
     'id' : IDL.Nat,
+    'externalSource' : IDL.Opt(ExternalSource),
     'inStock' : IDL.Bool,
+    'externalId' : IDL.Opt(IDL.Text),
     'name' : IDL.Text,
     'description' : IDL.Text,
     'imageUrl' : IDL.Text,
@@ -89,6 +108,7 @@ export const idlFactory = ({ IDL }) => {
     '_initializeAccessControlWithSecret' : IDL.Func([IDL.Text], [], []),
     'addProduct' : IDL.Func([ProductInput], [IDL.Opt(IDL.Nat)], []),
     'assignCallerUserRole' : IDL.Func([IDL.Principal, UserRole], [], []),
+    'bulkUpsertShopifyProducts' : IDL.Func([IDL.Vec(ProductInput)], [], []),
     'deleteProduct' : IDL.Func([IDL.Nat], [], []),
     'getAllProducts' : IDL.Func([], [IDL.Vec(Product)], ['query']),
     'getCallerUserProfile' : IDL.Func([], [IDL.Opt(UserProfile)], ['query']),

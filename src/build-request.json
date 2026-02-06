@@ -1,12 +1,125 @@
 {
   "kind": "build_request",
-  "title": "Untitled request",
+  "title": "Retry: Add automatic Shopify product sync (title, price, images, description) into existing product catalog",
   "priority": "normal",
-  "requirements": [],
-  "constraints": [],
-  "nonGoals": [],
+  "requirements": [
+    {
+      "id": "REQ-1",
+      "text": "Add an admin-only Shopify product sync workflow that can import products from a Shopify store into the existing catalog, including at minimum: title/name, description, price, currency, category/type (best-effort), main image URL, and in-stock status (best-effort).",
+      "target": "both",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Shopify se automatic sync chahiye or product ke sath sab details tittle price image etc all ye sab feature add karo",
+          "Han dobara try Karo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin users can initiate a Shopify sync from the app UI.",
+        "After sync completes, imported products appear in the Products list and product details pages with the expected fields populated.",
+        "Non-admin users cannot access or trigger Shopify sync features.",
+        "Failures (invalid domain/token, network errors, Shopify API errors) are shown to the admin with an English, user-friendly error message and do not break the rest of the app."
+      ]
+    },
+    {
+      "id": "REQ-2",
+      "text": "Extend the backend product model to support reliable upsert/merge for Shopify-imported products by storing a stable external identifier and source on each product, and implement an admin-only bulk upsert method that creates new products or updates existing ones based on that external identifier.",
+      "target": "backend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Shopify se automatic sync chahiye or product ke sath sab details tittle price image etc all ye sab feature add karo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Backend supports storing an external product identifier and external source for each product (used for Shopify imports).",
+        "A single admin-only backend method can upsert multiple imported products in one call (create if new, update if already imported).",
+        "Existing manual products (created via current Admin create/edit UI) continue to work without requiring an external identifier.",
+        "Unauthorized callers receive an authorization error when attempting to call the bulk upsert/sync-related method(s)."
+      ]
+    },
+    {
+      "id": "REQ-3",
+      "text": "Implement a Shopify Storefront API integration for product import that does not require third-party auth providers: add an Admin UI section where an admin can enter the Shopify store domain and Storefront access token, test the connection, and run a “Sync now” action that fetches products from Shopify and imports them into the backend via the bulk upsert endpoint.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Shopify se automatic sync chahiye or product ke sath sab details tittle price image etc all ye sab feature add karo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Admin UI includes inputs for Shopify store domain and Storefront access token, and a “Sync now” button.",
+        "The sync uses Shopify Storefront GraphQL endpoint derived from the provided domain and sends the required headers.",
+        "On sync success, the UI shows a success confirmation in English and the product list refreshes automatically.",
+        "On sync failure, the UI shows an English error state and provides actionable hints (e.g., invalid token/domain, API returned errors)."
+      ]
+    },
+    {
+      "id": "REQ-4",
+      "text": "Ensure the frontend canister interface typing is complete for any newly added backend methods used by Shopify sync, so React Query hooks can call them without using `any` types or missing method errors at compile time.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "Han dobara try Karo"
+        ]
+      },
+      "acceptanceCriteria": [
+        "Frontend TypeScript build succeeds with the new backend methods referenced by the Shopify sync UI.",
+        "Actor calls for the new sync/upsert method(s) are type-safe and do not rely on `as any` to access missing properties."
+      ]
+    },
+    {
+      "id": "REQ-5",
+      "text": "Add a consistent empty-image fallback so products without a valid image render a local placeholder image asset instead of a broken image.",
+      "target": "frontend",
+      "source": {
+        "messageIds": [
+          "recent-messages"
+        ],
+        "quotes": [
+          "...price image etc all..."
+        ]
+      },
+      "acceptanceCriteria": [
+        "If a product image fails to load or is missing, the UI shows a local placeholder image instead of a broken image icon.",
+        "The placeholder file path referenced in the UI exists in the built frontend static assets."
+      ]
+    }
+  ],
+  "constraints": [
+    "Backend must remain a single Motoko actor in backend/main.mo.",
+    "Do not edit files under frontend/src/components/ui or any paths listed as immutable in SYSTEM_CONTEXT.",
+    "Use English for any user-facing text."
+  ],
+  "nonGoals": [
+    "Building a Shopify embedded app, submitting to the Shopify App Store, or OAuth-based Shopify authentication.",
+    "Adding Shopify checkout inside this app or embedding this app inside a Shopify theme via buy buttons.",
+    "Real-time syncing via webhooks or background scheduled jobs (only admin-initiated sync is required)."
+  ],
   "imageRequirements": {
-    "required": [],
+    "required": [
+      "Simple product placeholder image on a neutral background, minimal icon/illustration style (product-placeholder.dim_800x800.png)"
+    ],
     "edits": []
+  },
+  "userProfileUpdate": {
+    "goalsToAdd": [],
+    "goalsToRemove": [],
+    "preferencesToAdd": [],
+    "preferencesToRemove": [],
+    "miscToAdd": [],
+    "miscToRemove": [],
+    "fieldsToSet": {},
+    "fieldsToDelete": []
   }
 }

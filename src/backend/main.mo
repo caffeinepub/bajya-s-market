@@ -1,20 +1,28 @@
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Array "mo:core/Array";
-import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Order "mo:core/Order";
+import Iter "mo:core/Iter";
 import Runtime "mo:core/Runtime";
 import Principal "mo:core/Principal";
 import MixinAuthorization "authorization/MixinAuthorization";
 import AccessControl "authorization/access-control";
+import Migration "migration";
 
+(with migration = Migration.run)
 actor {
   // Initialize the access control system
   let accessControlState = AccessControl.initState();
   include MixinAuthorization(accessControlState);
 
-  type Product = {
+  public type ExternalSource = {
+    #shopify;
+    #manual;
+    #other : Text;
+  };
+
+  public type Product = {
     id : Nat;
     name : Text;
     description : Text;
@@ -23,6 +31,8 @@ actor {
     category : Text;
     imageUrl : Text;
     inStock : Bool;
+    externalId : ?Text;
+    externalSource : ?ExternalSource;
   };
 
   module Product {
@@ -37,7 +47,7 @@ actor {
     };
   };
 
-  type ProductInput = {
+  public type ProductInput = {
     name : Text;
     description : Text;
     price : Float;
@@ -45,6 +55,8 @@ actor {
     category : Text;
     imageUrl : Text;
     inStock : Bool;
+    externalId : ?Text;
+    externalSource : ?ExternalSource;
   };
 
   public type UserProfile = {
@@ -52,6 +64,7 @@ actor {
   };
 
   let products = Map.empty<Nat, Product>();
+  let externalProductIdMap = Map.empty<Text, Nat>();
   let userProfiles = Map.empty<Principal, UserProfile>();
   var nextId = 1;
 
@@ -68,6 +81,8 @@ actor {
       "Home",
       "https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=facearea&w=480&h=480&q=80",
       true,
+      null,
+      null,
     );
     ignore addProductToStore(
       "LED Desk Lamp",
@@ -77,6 +92,8 @@ actor {
       "Office",
       "https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=facearea&w=480&h=480&q=80",
       true,
+      null,
+      null,
     );
     ignore addProductToStore(
       "Bluetooth Speaker",
@@ -86,6 +103,8 @@ actor {
       "Electronics",
       "https://images.unsplash.com/photo-1516339901601-2e1b62dc0c45?auto=format&fit=facearea&w=480&h=480&q=80",
       true,
+      null,
+      null,
     );
     ignore addProductToStore(
       "Yoga Mat",
@@ -95,10 +114,22 @@ actor {
       "Fitness",
       "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=480&h=480&q=80",
       true,
+      null,
+      null,
     );
   };
 
-  func addProductToStore(name : Text, description : Text, price : Float, currency : Text, category : Text, imageUrl : Text, inStock : Bool) : ?Nat {
+  func addProductToStore(
+    name : Text,
+    description : Text,
+    price : Float,
+    currency : Text,
+    category : Text,
+    imageUrl : Text,
+    inStock : Bool,
+    externalId : ?Text,
+    externalSource : ?ExternalSource,
+  ) : ?Nat {
     let product : Product = {
       id = nextId;
       name;
@@ -108,11 +139,34 @@ actor {
       category;
       imageUrl;
       inStock;
+      externalId;
+      externalSource;
     };
+
+    // Prevent duplicate product by internal ID
     if (products.containsKey(product.id)) {
       return null;
     };
+
+    // Prevent duplicate product by external ID (if provided)
+    switch (externalId) {
+      case (?id) {
+        if (externalProductIdMap.containsKey(id)) {
+          return null;
+        };
+      };
+      case (null) {};
+    };
+
     products.add(product.id, product);
+
+    switch (externalId) {
+      case (?id) {
+        externalProductIdMap.add(id, product.id);
+      };
+      case (null) {};
+    };
+
     let currentId = nextId;
     nextId += 1;
     ?currentId;
@@ -152,9 +206,20 @@ actor {
       category = productInput.category;
       imageUrl = productInput.imageUrl;
       inStock = productInput.inStock;
+      externalId = productInput.externalId;
+      externalSource = productInput.externalSource;
     };
     if (products.containsKey(product.id)) {
       return null;
+    };
+    switch (productInput.externalId) {
+      case (?id) {
+        if (externalProductIdMap.containsKey(id)) {
+          return null;
+        };
+        externalProductIdMap.add(id, product.id);
+      };
+      case (null) {};
     };
     products.add(product.id, product);
     let currentId = nextId;
@@ -171,6 +236,12 @@ actor {
       Runtime.trap("Product does not exist");
     };
     products.add(product.id, product);
+    switch (product.externalId) {
+      case (?id) {
+        externalProductIdMap.add(id, product.id);
+      };
+      case (null) {};
+    };
   };
 
   // Admin-only: Delete product
@@ -178,10 +249,18 @@ actor {
     if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
       Runtime.trap("Unauthorized: Only admins can delete products");
     };
-    if (not products.containsKey(id)) {
-      Runtime.trap("Product does not exist");
+    switch (products.get(id)) {
+      case (null) { Runtime.trap("Product does not exist") };
+      case (?product) {
+        products.remove(id);
+        switch (product.externalId) {
+          case (?externalId) {
+            externalProductIdMap.remove(externalId);
+          };
+          case (null) {};
+        };
+      };
     };
-    products.remove(id);
   };
 
   // Admin-only: Toggle product stock status
@@ -195,6 +274,54 @@ actor {
         let updatedProduct : Product = { product with inStock };
         products.add(id, updatedProduct);
       };
+    };
+  };
+
+  // Admin-only: Bulk upsert products from Shopify import
+  public shared ({ caller }) func bulkUpsertShopifyProducts(productsInput : [ProductInput]) : async () {
+    if (not (AccessControl.hasPermission(accessControlState, caller, #admin))) {
+      Runtime.trap("Unauthorized: Only admins can sync Shopify products");
+    };
+
+    for (input in productsInput.values()) {
+      let newProduct : Product = {
+        id = switch (input.externalId) {
+          case (?extId) {
+            switch (externalProductIdMap.get(extId)) {
+              case (?existingId) { existingId };
+              case (null) {
+                let id = nextId;
+                nextId += 1;
+                id;
+              };
+            };
+          };
+          case (null) {
+            let id = nextId;
+            nextId += 1;
+            id;
+          };
+        };
+        name = input.name;
+        description = input.description;
+        price = input.price;
+        currency = input.currency;
+        category = input.category;
+        imageUrl = input.imageUrl;
+        inStock = input.inStock;
+        externalId = input.externalId;
+        externalSource = input.externalSource;
+      };
+
+      // Update external product map if externalId is present
+      switch (input.externalId) {
+        case (?id) {
+          externalProductIdMap.add(id, newProduct.id);
+        };
+        case (null) {};
+      };
+
+      products.add(newProduct.id, newProduct);
     };
   };
 
